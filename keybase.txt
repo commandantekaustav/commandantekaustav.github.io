@@ -1,0 +1,56 @@
+==================================================================
+https://keybase.io/commandantek
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://commandantekaustav.github.io
+  * I am commandantek (https://keybase.io/commandantek) on keybase.
+  * I have a public key ASCbu5CvNvzxexvy7KXf7ZQmVqU8HAtpcZwJzJnLOelRKQo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "0120ec8b05c3397eef6a8938b6d1085aa2d5ae954876aa444e550a030cebd64308f60a",
+      "host": "keybase.io",
+      "kid": "01209bbb90af36fcf17b1bf2eca5dfed942656a53c1c0b69719c09cc99cb39e951290a",
+      "uid": "4dd1899813183f35bd252c7695140a19",
+      "username": "commandantek"
+    },
+    "merkle_root": {
+      "ctime": 1560252451,
+      "hash": "1f19a51a46c6945523ef19ec4afbb7623757250ca5efecd930197646c879720ae0e44829bd7060cef7b1aeec531fb6b871b4e726fa95eb7e1e64aedcb51dcecf",
+      "hash_meta": "db7ccb0df26976cd611a39203af2169edf852d3780b1104fa723d3d3fbfdea15",
+      "seqno": 5548475
+    },
+    "service": {
+      "entropy": "GyK3gX6COy36o/Uzr39QysG5",
+      "hostname": "commandantekaustav.github.io",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "4.0.0"
+  },
+  "ctime": 1560252477,
+  "expire_in": 504576000,
+  "prev": "5397acd72bbab3a44498db26b7e51f1dc15e1117eac44b478b3020f8199b306b",
+  "seqno": 25,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgm7uQrzb88Xsb8uyl3+2UJlalPBwLaXGcCcyZyznpUSkKp3BheWxvYWTESpcCGcQgU5es1yu6s6REmNsmt+UfHcFeERfqxEtHizAg+BmbMGvEILBsFIbd4GhEMFMdskoFIvW0Yw5fVxc0AZz6M+jw+0wwAgHCo3NpZ8RAoSA+Gy2/VOS0Mp6GOg5iBXH71hYhARp9uRz/wZVOroWezJkbHwJxEivrtBVSHdReEXj+1WjAPQJW+Qed4I0LD6hzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIFp5Uz/AdubUt4Tkv/O1Ln5kHxn1Omo/THMOrtDw9XX4o3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/commandantek
+
+==================================================================
