@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaustav Basu - Data Science Professional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden; /* Prevent horizontal scroll due to transforms */
+        }
+        /* Custom styles for D3 axis lines/ticks */
+        .x-axis path, .y-axis path {
+            stroke: #a7b7c5; /* Light gray for axis lines */
+        }
+        .x-axis line, .y-axis line {
+            stroke: #a7b7c5; /* Light gray for ticks */
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        /* Keyframes for fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-down {
+            animation: fadeInDown 0.8s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen bg-gradient-to-br from-zinc-950 to-black p-4 sm:p-8 transition-opacity duration-1000 opacity-0" id="body-container">
+
+    <div id="p5-canvas-container" class="absolute inset-0 overflow-hidden"></div>
+
+    <div class="relative z-10 max-w-4xl mx-auto bg-zinc-800 shadow-2xl rounded-xl overflow-hidden">
+        <header class="bg-gradient-to-r from-black to-zinc-900 text-white p-6 sm:p-8 rounded-t-xl">
+            <div class="flex flex-col sm:flex-row justify-between items-center animate-fade-in-down">
+                <div class="text-center sm:text-left mb-4 sm:mb-0">
+                    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-1">Kaustav</h1>
+                    <p class="text-gray-300 text-lg sm:text-xl">Versatile Data Science Professional</p>
+                </div>
+                <div class="text-center sm:text-right text-gray-300 text-sm sm:text-base">
+                    <p>Kolkata, West Bengal, India</p>
+                    <p>kaustavcodes@gmail.com | commandantek@protonmail.com</p>
+                    <p><a href="https://linkedin.com/in/commandantekaustav/" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline">linkedin.com/in/commandantekaustav/</a></p>
+                </div>
+            </div>
+        </header>
+
+        <nav class="bg-gradient-to-r from-black to-zinc-900 p-4 shadow-lg">
+            <ul class="flex flex-wrap justify-center gap-2 sm:gap-4 text-sm sm:text-base">
+                <li><button id="nav-summary" class="px-3 py-2 rounded-lg font-medium transition-all duration-300 ease-in-out text-gray-300 hover:bg-zinc-700 hover:text-cyan-400 hover:scale-105 hover:rotate-3">Summary</button></li>
+                <li><button id="nav-workHistory" class="px-3 py-2 rounded-lg font-medium transition-all duration-300 ease-in-out text-gray-300 hover:bg-zinc-700 hover:text-cyan-400 hover:scale-105 hover:rotate-3">Work History</button></li>
+                <li><button id="nav-consultancy" class="px-3 py-2 rounded-lg font-medium transition-all duration-300 ease-in-out text-gray-300 hover:bg-zinc-700 hover:text-cyan-400 hover:scale-105 hover:rotate-3">Consultancy</button></li>
+                <li><button id="nav-projects" class="px-3 py-2 rounded-lg font-medium transition-all duration-300 ease-in-out text-gray-300 hover:bg-zinc-700 hover:text-cyan-400 hover:scale-105 hover:rotate-3">Projects</button></li>
+                <li><button id="nav-skills" class="px-3 py-2 rounded-lg font-medium transition-all duration-300 ease-in-out text-gray-300 hover:bg-zinc-700 hover:text-cyan-400 hover:scale-105 hover:rotate-3">Skills</button></li>
+                <li><button id="nav-education" class="px-3 py-2 rounded-lg font-medium transition-all duration-300 ease-in-out text-gray-300 hover:bg-zinc-700 hover:text-cyan-400 hover:scale-105 hover:rotate-3">Education</button></li>
+                <li><button id="nav-achievements" class="px-3 py-2 rounded-lg font-medium transition-all duration-300 ease-in-out text-gray-300 hover:bg-zinc-700 hover:text-cyan-400 hover:scale-105 hover:rotate-3">Achievements</button></li>
+                <li><button id="nav-languagesInterests" class="px-3 py-2 rounded-lg font-medium transition-all duration-300 ease-in-out text-gray-300 hover:bg-zinc-700 hover:text-cyan-400 hover:scale-105 hover:rotate-3">Languages & Interests</button></li>
+            </ul>
+        </nav>
+
+        <main class="p-6 sm:p-8">
+            <section id="section-summary" class="animate-fade-in">
+                <h2 class="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Professional Summary</h2>
+                <p class="text-gray-300 leading-relaxed text-lg">
+                    Versatile Data Science professional (MS Computer Science - Distinction) with a unique blend of hands-on Machine Learning
+                    Engineering (building models, automating data pipelines for substantial efficiency gains) and expertise in designing impactful data
+                    science curricula and mentoring hundreds of learners (Python, SQL, ML). Proven ability to translate complex technical
+                    concepts into practical applications and data-driven solutions. Eager to leverage a strong foundation in <span class="font-semibold text-cyan-400">Python, Scikit-learn, and Statistical Analysis</span> to contribute to innovative projects in either a development or
+                    educational capacity.
+                </p>
+            </section>
+
+            <section id="section-workHistory" class="hidden animate-fade-in">
+                <h2 class="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Work History</h2>
+                <div class="space-y-8">
+                    <div class="relative pl-6 border-l-2 border-gray-600 group hover:border-cyan-500 transition-all duration-300 transform hover:-translate-y-2 hover:scale-102 hover:shadow-xl">
+                        <div class="absolute -left-2 top-0 w-4 h-4 bg-cyan-500 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+                        <h3 class="text-xl font-semibold text-gray-100">SUBJECT MATTER EXPERT OF DATA SCIENCE</h3>
+                        <p class="text-cyan-400 font-medium">Department of Mentoring, FACEPrep Campus</p>
+                        <p class="text-gray-400 text-sm mb-2">February 2025 - Present</p>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Spearheaded design of data science curriculum (Python, SQL, ML: Regression, Classification, NLP) for students, incorporating industry-aligned capstone projects.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Authored course modules & capstone projects (e.g., 'Predictive Maintenance,' 'Sentiment Analysis') using Scikit-learn, Pandas, & Tableau.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Trained & evaluated data science trainers, establishing rigorous standards for curriculum delivery.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Delivered advanced workshops (Applied ML, Data Storytelling, ML Life-cycles) to students, faculty, & professionals.</span></li>
+                        </ul>
+                    </div>
+                    <div class="relative pl-6 border-l-2 border-gray-600 group hover:border-cyan-500 transition-all duration-300 transform hover:-translate-y-2 hover:scale-102 hover:shadow-xl">
+                        <div class="absolute -left-2 top-0 w-4 h-4 bg-cyan-500 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+                        <h3 class="text-xl font-semibold text-gray-100">ASSISTANT PROFESSOR OF CS & AIML</h3>
+                        <p class="text-cyan-400 font-medium">School of Technology, Woxsen University</p>
+                        <p class="text-gray-400 text-sm mb-2">March 2024 - September 2024</p>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Delivered lectures and conducted coding sessions for B.Tech students in Core CSE and AI & ML, enhancing student understanding and engagement.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Participated in Curriculum Designing and Course Content development to deliver high quality materials to the students.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Mentored students on academic and research projects, fostering development in both technical skills and innovative thinking.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Led in-house development projects in collaboration with students and faculty.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Served as a jury member for evaluating student internship projects, ensuring high standards of academic and practical excellence.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Participated as a jury in the Societal Impact Projects, assessing and guiding initiatives aimed at community betterment and social responsibility.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Participated as a jury in the Final Year Capstone Projects.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Mentored 9 teams of Freshmen for their Conceptual project.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Published on Book Chapter in Elsevier with the fellow faculties.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Mentored the coding club and the music club.</span></li>
+                        </ul>
+                    </div>
+                    <div class="relative pl-6 border-l-2 border-gray-600 group hover:border-cyan-500 transition-all duration-300 transform hover:-translate-y-2 hover:scale-102 hover:shadow-xl">
+                        <div class="absolute -left-2 top-0 w-4 h-4 bg-cyan-500 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+                        <h3 class="text-xl font-semibold text-gray-100">MACHINE LEARNING ENGINEER</h3>
+                        <p class="text-cyan-400 font-medium">EEGRAB</p>
+                        <p class="text-gray-400 text-sm mb-2">October 2023 - February 2024</p>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Data Modeling, SRS Documentation</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Prototyping and UI/UX Designing</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Handled data preparation for Computer Vision models.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Developed scripts to automate data acquisition and preparation tasks, significantly improving process efficiency.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Performed modeling for CV and NLP</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Participated in project pitching and direct client interaction.</span></li>
+                        </ul>
+                    </div>
+                    <div class="relative pl-6 border-l-2 border-gray-600 group hover:border-cyan-500 transition-all duration-300 transform hover:-translate-y-2 hover:scale-102 hover:shadow-xl">
+                        <div class="absolute -left-2 top-0 w-4 h-4 bg-cyan-500 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+                        <h3 class="text-xl font-semibold text-gray-100">CODING EDUCATOR (Part time)</h3>
+                        <p class="text-cyan-400 font-medium">Bright Champs</p>
+                        <p class="text-gray-400 text-sm mb-2">February 2022 - August 2022</p>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Taught Python, Thunkable, and Scratch programming to international students (K12) online.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Developed interactive lessons aligned with the curriculum and increased student engagement by 33%. Collaborated with other instructors to improve teaching effectiveness.</span></li>
+                        </ul>
+                    </div>
+                    <div class="relative pl-6 border-l-2 border-gray-600 group hover:border-cyan-500 transition-all duration-300 transform hover:-translate-y-2 hover:scale-102 hover:shadow-xl">
+                        <div class="absolute -left-2 top-0 w-4 h-4 bg-cyan-500 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+                        <h3 class="text-xl font-semibold text-gray-100">STUDENT INTERN</h3>
+                        <p class="text-cyan-400 font-medium">Ardent Computech PVT. LTD.</p>
+                        <p class="text-gray-400 text-sm mb-2">July 2018 - November 2018</p>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Implemented ML models using Python from Scratch.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Built a Linear Regression Model for predicting the air precipitation level in the air using historical data.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Built a Classification Model using SVM to determine the Loan Eligibility of a customer.</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-consultancy" class="hidden animate-fade-in">
+                <h2 class="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Consultancy Services</h2>
+                <p class="text-gray-300 leading-relaxed text-lg mb-8">
+                    Offering specialized expertise to drive data-driven innovation and enhance organizational capabilities.
+                    My services are designed to help businesses and individuals leverage Machine Learning and Data Science for impactful results.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                    <div class="bg-gradient-to-br from-zinc-800 to-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-2 flex items-center">
+                            <span class="p-2 rounded-full bg-zinc-900 mr-3 text-cyan-400 flex items-center justify-center shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lightbulb"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1.3.5 2.6 1.5 3.5.8.7 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg>
+                            </span>
+                            Data Science Strategy & Implementation
+                        </h3>
+                        <p class="text-gray-300">Design and implement robust data science strategies, including ML model building, automation of data pipelines for substantial efficiency gains, and integration of advanced analytics.</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-zinc-800 to-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-2 flex items-center">
+                            <span class="p-2 rounded-full bg-zinc-900 mr-3 text-cyan-400 flex items-center justify-center shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rocket"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.75-.75 1.36-1.79 1.67-2.94L12 15h4l-2-2 3-3L22 6l-4-4L12 7l-3 3-2-2Z"></path><path d="M9 18v3"></path><path d="M12 15v6"></path></svg>
+                            </span>
+                            Custom Machine Learning Solutions
+                        </h3>
+                        <p class="text-gray-300">Develop tailored ML solutions for Computer Vision (e.g., ASL translation), Natural Language Processing, predictive modeling, and classification tasks to address specific business challenges.</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-zinc-800 to-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-2 flex items-center">
+                            <span class="p-2 rounded-full bg-zinc-900 mr-3 text-cyan-400 flex items-center justify-center shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart-2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+                            </span>
+                            Advanced Data Visualization Services
+                        </h3>
+                        <p class="text-gray-300">Transform complex datasets into clear, compelling, and interactive data visualizations. Provide services to help you communicate insights effectively to any audience.</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-zinc-800 to-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-2 flex items-center">
+                            <span class="p-2 rounded-full bg-zinc-900 mr-3 text-cyan-400 flex items-center justify-center shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                            </span>
+                            Technical Curriculum Development & Training
+                        </h3>
+                        <p class="text-gray-300">Create and deliver industry-aligned data science curricula (Python, SQL, ML) and advanced workshops for corporate teams or educational institutions, fostering technical growth.</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-zinc-800 to-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-2 flex items-center">
+                            <span class="p-2 rounded-full bg-zinc-900 mr-3 text-cyan-400 flex items-center justify-center shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
+                            </span>
+                            Personalized 1-on-1 Mentorship
+                        </h3>
+                        <p class="text-gray-300">Offer tailored guidance and support to selected individuals, covering technical skills, career development, and project execution in Data Science and Machine Learning.</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-zinc-800 to-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-2 flex items-center">
+                            <span class="p-2 rounded-full bg-zinc-900 mr-3 text-cyan-400 flex items-center justify-center shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                            </span>
+                            Research Code Review & Refinement
+                        </h3>
+                        <p class="text-gray-300">Provide expert review, debugging, and optimization services for code used in academic research papers, ensuring accuracy, efficiency, and reproducibility.</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-zinc-800 to-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-2 flex items-center">
+                            <span class="p-2 rounded-full bg-zinc-900 mr-3 text-cyan-400 flex items-center justify-center shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cloud"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h3.79a4.5 4.5 0 1 1 0 9Z"></path></svg>
+                            </span>
+                            MLOps & Deployment Strategy
+                        </h3>
+                        <p class="text-gray-300">Guide the deployment and management of machine learning models in production environments, ensuring scalability, reliability, and continuous integration/delivery.</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-zinc-800 to-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-2 flex items-center">
+                            <span class="p-2 rounded-full bg-zinc-900 mr-3 text-cyan-400 flex items-center justify-center shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path d="m9 12 2 2 4-4"></path></svg>
+                            </span>
+                            Ethical AI & Bias Mitigation
+                        </h3>
+                        <p class="text-gray-300">Consult on developing and implementing ethical AI practices, identifying and mitigating biases in models, and ensuring responsible AI development and deployment.</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-zinc-800 to-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-2 flex items-center">
+                            <span class="p-2 rounded-full bg-zinc-900 mr-3 text-cyan-400 flex items-center justify-center shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+                            </span>
+                            Data-Driven Decision Making
+                        </h3>
+                        <p class="text-gray-300">Assist organizations in establishing frameworks and processes for data-driven decision-making, optimizing operational efficiency and strategic planning.</p>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-700 p-6 rounded-xl shadow-lg border border-gray-700 mb-10 transform hover:-translate-y-2 hover:scale-101 transition-all duration-300 hover:shadow-xl">
+                    <h2 class="text-2xl font-bold text-gray-100 mb-6 flex items-center gap-3">
+                        <span class="p-2 rounded-full bg-zinc-900 text-cyan-400 flex items-center justify-center shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        </span>
+                        Why Choose My Consultancy?
+                    </h2>
+                    <ul class="space-y-4">
+                        <li class="flex items-start bg-zinc-800 p-4 rounded-lg shadow-sm border border-gray-700 transform hover:-translate-y-1 hover:scale-101 transition-all duration-300 hover:shadow-lg">
+                            <span class="p-2 rounded-full bg-zinc-900 text-cyan-400 mr-3 flex items-center justify-center shadow-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </span>
+                            <p class="text-gray-300">
+                                <span class="font-semibold text-gray-100">Proven Expertise:</span> Distinction in MS Computer Science and hands-on experience in Machine Learning Engineering.
+                            </p>
+                        </li>
+                        <li class="flex items-start bg-zinc-800 p-4 rounded-lg shadow-sm border border-gray-700 transform hover:-translate-y-1 hover:scale-101 transition-all duration-300 hover:shadow-lg">
+                            <span class="p-2 rounded-full bg-zinc-900 text-cyan-400 mr-3 flex items-center justify-center shadow-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </span>
+                            <p class="text-gray-300">
+                                <span class="font-semibold text-gray-100">Impact-Driven Solutions:</span> Focus on delivering tangible results, from improving operational efficiency to enhancing classification accuracy.
+                            </p>
+                        </li>
+                        <li class="flex items-start bg-zinc-800 p-4 rounded-lg shadow-sm border border-gray-700 transform hover:-translate-y-1 hover:scale-101 transition-all duration-300 hover:shadow-lg">
+                            <span class="p-2 rounded-full bg-zinc-900 text-cyan-400 mr-3 flex items-center justify-center shadow-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </span>
+                            <p class="text-gray-300">
+                                <span class="font-semibold text-gray-100">Holistic Approach:</span> From strategic planning and model development to curriculum design and team mentoring.
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-gradient-to-r from-zinc-800 to-zinc-600 text-white p-8 rounded-xl shadow-xl text-center max-w-2xl mx-auto transform hover:-translate-y-2 hover:scale-101 transition-all duration-300 hover:shadow-2xl">
+                    <p class="text-gray-200 text-xl font-semibold mb-4">Ready to Transform Your Data Strategy?</p>
+                    <p class="text-gray-300 leading-relaxed mb-6">
+                        Let's discuss how my expertise can drive innovation and efficiency for your business.
+                        Reach out today for a personalized consultation.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <a href="mailto:kaustavcodes@gmail.com" class="inline-flex items-center justify-center bg-cyan-500 text-zinc-900 font-bold py-3 px-6 rounded-lg shadow-md hover:bg-cyan-600 transition-colors duration-300 transform hover:scale-105 hover:rotate-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail mr-2"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                            Email Me
+                        </a>
+                        <a href="mailto:commandantek@protonmail.com" class="inline-flex items-center justify-center bg-zinc-900 text-cyan-400 font-bold py-3 px-6 rounded-lg shadow-md border border-cyan-500 hover:bg-zinc-700 transition-colors duration-300 transform hover:scale-105 hover:-rotate-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail mr-2"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                            ProtonMail
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-projects" class="hidden animate-fade-in">
+                <h2 class="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Projects</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-1">COVID-19 GLOBAL VACCINATION TRACKER</h3>
+                        <p class="text-cyan-400 text-sm mb-3">2023</p>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Transformed and Enhanced Data using Tableau Prep and LOD expressions and determined the top 6 Key Performance Indicators.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Data Visualisation using Tableau Desktop using appropriate charts for providing insights.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-1">CUSTOMER PERSONALITY ANALYSIS DASHBOARD</h3>
+                        <p class="text-cyan-400 text-sm mb-3">2023</p>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Processed Data and created new features using Level of Detail expressions and determined top Key Performance Indicators.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Performed RFM (Recency, Frequency, Monetary Value) Analysis to quantitatively rank and group customers into different segments.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Data Visualisations using appropriate charts to convey insight in the best way possible.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-1">AMERICAN SIGN LANGUAGE TRANSLATOR USING COMPUTER VISION</h3>
+                        <p class="text-cyan-400 text-sm mb-3">2022</p>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Developed a computer vision model using MediaPipe to translate American Sign Language gestures with a probability of 87%.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-1">ANALYSIS OF A TWITTER INTERACTION NETWORK</h3>
+                        <p class="text-cyan-400 text-sm mb-3">2021</p>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Analyzed and segmented 100,000 social media users into 5 categories using data visualization and machine learning;</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>identified 20 power users who generated 80% of user-generated content</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Determined the initial spreading rate of content was 10 tweets per second and the growth rate was exponential.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-1">AN EDA ON THE LAST TWO WAVES OF COVID-19</h3>
+                        <p class="text-cyan-400 text-sm mb-3">2021</p>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Conducted an exploratory data analysis on the last two waves of COVID-19.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-1">XRD AND GAUSSIAN SPECTOGRAPHIC ANALYSIS OF LUNAR REGOLITHS FOR FUTURE SCOPE OF EXCAVATION ON LUNAR SURFACE</h3>
+                        <p class="text-cyan-400 text-sm mb-3">2020</p>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Analysis of Lunar Regoliths using Spectral analysis.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Written extensive XRD analysis module using MATLAB.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Written XRD module for Chandrayaan 2 simulation drive and pilot launch and Gaganyaan trial project.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-1">MORPHOLOGICAL CLASSIFICATION OF GALAXIES USING HUBBLE FORK AND CONTEMPORARY EXPERIMENTAL METHODS</h3>
+                        <p class="text-cyan-400 text-sm mb-3">2019</p>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Conducted research study on Sloan Digital Sky Survey database, implementing ETL processes to extract and clean data;</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>leveraged SQL and machine learning to classify data into 10 different groups, substantially improving classification accuracy.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-1">DETECTION OF HABITABLE EXOPLANETS</h3>
+                        <p class="text-cyan-400 text-sm mb-3">2018</p>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Collected a statistical dataset of 10,000 different exoplanets scanned by Kepler2 from the University of Puerto Rico.</span></li>
+                            <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Conducted a study on the performances of machine learning algorithms by detecting habitable exoplanets, resulting in an increase in the accuracy of the algorithms by 15%.</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold text-gray-100 mb-2">Publication</h3>
+                    <div class="bg-zinc-700 p-4 rounded-lg shadow-sm border border-gray-700 transform hover:-translate-y-1 hover:scale-101 transition-all duration-300 hover:shadow-lg">
+                        <p class="text-gray-300">
+                            <span class="font-medium text-cyan-400">2024:</span> BOOK: NECROBOTICS FOR HEALTHCARE APPLICATIONS AND MANAGEMENT Published by Elsevier -
+                            Chapter: Ensuring Safety and Ethics in Necrobotics Research through Comprehensive Risk Management and Public Engagement
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-skills" class="hidden animate-fade-in">
+                <h2 class="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Skills</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-3">Programming Languages</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">C</span>
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">C++</span>
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">Python</span>
+                        </div>
+                    </div>
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-3">Database</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">MySQL</span>
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">SQLite</span>
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">DB2</span>
+                        </div>
+                    </div>
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-3">Data Visualization and BI Tools</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">Tableau</span>
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">PowerBI</span>
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">Gephi</span>
+                        </div>
+                    </div>
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-3">Data Science Libraries</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">NumPy</span>
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">Pandas</span>
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">Seaborn</span>
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">Scikit-learn</span>
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">Tensorflow</span>
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">Mediapipe</span>
+                            <span class="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200 transform hover:scale-105">Blazepose</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 mt-6 transform hover:-translate-y-2 hover:scale-102 transition-all duration-300">
+                    <h3 class="text-xl font-semibold text-gray-100 mb-3">Skills Proficiency</h3>
+                    <svg id="skills-chart" class="w-full"></svg>
+                </div>
+            </section>
+
+            <section id="section-education" class="hidden animate-fade-in">
+                <h2 class="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Education</h2>
+                <div class="space-y-6">
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100">MASTER OF SCIENCE (COMPUTER SCIENCE)</h3>
+                        <p class="text-cyan-400 font-medium">Pondicherry University</p>
+                        <p class="text-gray-400 text-sm mb-2">Graduation Year: 2022 | DGPA: 9.17</p>
+                        <div>
+                            <p class="font-semibold text-gray-200 mt-3">Relevant Coursework:</p>
+                            <ul class="list-disc list-inside text-gray-300 space-y-1">
+                                <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Probability & Statistics</span></li>
+                                <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Social Network Analytics</span></li>
+                                <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Computational Intelligence</span></li>
+                                <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Optimisation Techniques</span></li>
+                                <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Data Analytics using Python</span></li>
+                                <li class="flex items-start"><span class="text-cyan-500 mr-2">●</span><span>Introduction to Machine Learning</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100">BACHELOR OF COMPUTER APPLICATION</h3>
+                        <p class="text-cyan-400 font-medium">Maulana Abul Kalam Azad University of Technology</p>
+                        <p class="text-gray-400 text-sm mb-2">Graduation Year: 2019 | DGPA: 8.55</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-achievements" class="hidden animate-fade-in">
+                <h2 class="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Achievements & Accomplishments</h2>
+                <div class="space-y-6">
+                    <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 flex items-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                        <span class="text-cyan-400 font-semibold text-lg mr-4">2023</span>
+                        <p class="text-gray-300">Qualified GATE</p>
+                    </div>
+                    <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 flex items-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                        <span class="text-cyan-400 font-semibold text-lg mr-4">2022</span>
+                        <p class="text-gray-300">University 2nd rank holder in M.Sc</p>
+                    </div>
+                    <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 flex items-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                        <span class="text-cyan-400 font-semibold text-lg mr-4">2021</span>
+                        <p class="text-gray-300">Earned Elite Silver (top 5%) in an IITM(NPTEL) course named The Joy of Computing</p>
+                    </div>
+                    <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 flex items-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                        <span class="text-cyan-400 font-semibold text-lg mr-4">2020</span>
+                        <p class="text-gray-300">AIR 1 in Pondicherry University Entrance Exam</p>
+                    </div>
+                    <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 flex items-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                        <span class="text-cyan-400 font-semibold text-lg mr-4">2019</span>
+                        <p class="text-gray-300">AIR 12 in Central University Common Entrance Test</p>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-2xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Coursework Skills</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-zinc-700 text-gray-200 p-3 rounded-lg shadow-sm flex items-center hover:bg-zinc-600 transition-all duration-200 transform hover:-translate-y-1 hover:scale-101">
+                            <svg class="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="font-medium">DESIGN AND ANALYSIS OF ALGORITHMS</span>
+                        </div>
+                        <div class="bg-zinc-700 text-gray-200 p-3 rounded-lg shadow-sm flex items-center hover:bg-zinc-600 transition-all duration-200 transform hover:-translate-y-1 hover:scale-101">
+                            <svg class="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="font-medium">AUTOMATA THEORY AND FORMAL LANGUAGES</span>
+                        </div>
+                        <div class="bg-zinc-700 text-gray-200 p-3 rounded-lg shadow-sm flex items-center hover:bg-zinc-600 transition-all duration-200 transform hover:-translate-y-1 hover:scale-101">
+                            <svg class="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="font-medium">PROBABILITY AND STATISTICS</span>
+                        </div>
+                        <div class="bg-zinc-700 text-gray-200 p-3 rounded-lg shadow-sm flex items-center hover:bg-zinc-600 transition-all duration-200 transform hover:-translate-y-1 hover:scale-101">
+                            <svg class="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="font-medium">DATA MINING TOOLS</span>
+                        </div>
+                        <div class="bg-zinc-700 text-gray-200 p-3 rounded-lg shadow-sm flex items-center hover:bg-zinc-600 transition-all duration-200 transform hover:-translate-y-1 hover:scale-101">
+                            <svg class="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="font-medium">PYTHON PROGRAMMING FOR DATA ANALYTICS</span>
+                        </div>
+                        <div class="bg-zinc-700 text-gray-200 p-3 rounded-lg shadow-sm flex items-center hover:bg-zinc-600 transition-all duration-200 transform hover:-translate-y-1 hover:scale-101">
+                            <svg class="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="font-medium">SOCIAL NETWORK ANALYTICS</span>
+                        </div>
+                        <div class="bg-zinc-700 text-gray-200 p-3 rounded-lg shadow-sm flex items-center hover:bg-zinc-600 transition-all duration-200 transform hover:-translate-y-1 hover:scale-101">
+                            <svg class="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="font-medium">OPTIMIZATION TECHNIQUES</span>
+                        </div>
+                        <div class="bg-zinc-700 text-gray-200 p-3 rounded-lg shadow-sm flex items-center hover:bg-zinc-600 transition-all duration-200 transform hover:-translate-y-1 hover:scale-101">
+                            <svg class="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="font-medium">COMPUTATIONAL INTELLIGENCE</span>
+                        </div>
+                        <div class="bg-zinc-700 text-gray-200 p-3 rounded-lg shadow-sm flex items-center hover:bg-zinc-600 transition-all duration-200 transform hover:-translate-y-1 hover:scale-101">
+                            <svg class="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="font-medium">INTRODUCTION TO MACHINE LEARNING</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-2xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Accomplishments (Certifications)</h3>
+                    <div class="space-y-6">
+                        <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                            <p class="text-gray-400 text-sm">2022</p>
+                            <h4 class="text-lg font-semibold text-gray-100">DATA ANALYST USING PYTHON TRACK</h4>
+                            <p class="text-cyan-400">Datacamp</p>
+                        </div>
+                        <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                            <p class="text-gray-400 text-sm">2022</p>
+                            <h4 class="text-lg font-semibold text-gray-100">DATA SCIENTIST USING PYTHON TRACK</h4>
+                            <p class="text-cyan-400">Datacamp</p>
+                        </div>
+                        <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                            <p class="text-gray-400 text-sm">2022</p>
+                            <h4 class="text-lg font-semibold text-gray-100">STATISTICS FUNDAMENTALS WITH PYTHON TRACK</h4>
+                            <p class="text-cyan-400">Datacamp</p>
+                        </div>
+                        <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                            <p class="text-gray-400 text-sm">2021</p>
+                            <h4 class="text-lg font-semibold text-gray-100">BASICS OF RS, GIS AND GNSS</h4>
+                            <p class="text-cyan-400">Indian Institute of Remote Sensing, ISRO</p>
+                        </div>
+                        <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                            <p class="text-gray-400 text-sm">2021</p>
+                            <h4 class="text-lg font-semibold text-gray-100">THE JOY OF COMPUTING USING PYTHON</h4>
+                            <p class="text-cyan-400">IIT Ropar-NPTEL</p>
+                            <p class="text-gray-300 text-sm mt-1">Percentage Obtained: 88%, Grade: Elite Silver (Top 5%)</p>
+                        </div>
+                        <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                            <p class="text-gray-400 text-sm">2019</p>
+                            <h4 class="text-lg font-semibold text-gray-100">MATHEMATICAL THINKING FOR COMPUTER SCIENCE</h4>
+                            <p class="text-cyan-400">UC San Diego, HSE University and Coursera</p>
+                            <p class="text-gray-300 text-sm mt-1">Grade: 98.78%</p>
+                        </div>
+                        <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                            <p class="text-gray-400 text-sm">2019</p>
+                            <h4 class="text-lg font-semibold text-gray-100">SOCIAL PSYCHOLOGY WITH HONORS</h4>
+                            <p class="text-cyan-400">Wesleyan University and Coursera</p>
+                            <p class="text-gray-300 text-sm mt-1">Grade: 81.23%</p>
+                        </div>
+                        <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                            <p class="text-gray-400 text-sm">2018</p>
+                            <h4 class="text-lg font-semibold text-gray-100">DATA-DRIVEN ASTRONOMY</h4>
+                            <p class="text-cyan-400">University of Sydney and Coursera</p>
+                            <p class="text-gray-300 text-sm mt-1">Grade: 96%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-2xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Seminars</h3>
+                    <div class="space-y-4">
+                        <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                            <p class="text-gray-400 text-sm">2019</p>
+                            <h4 class="text-lg font-semibold text-gray-100">INTRODUCTION TO ESOTERIC PROGRAMMING LANGUAGES</h4>
+                            <p class="text-cyan-400">BCA, Final Year Seminar</p>
+                        </div>
+                        <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                            <p class="text-gray-400 text-sm">2020</p>
+                            <h4 class="text-lg font-semibold text-gray-100">2ND IEEE WINTER SCHOOL ON FOG/EDGE COMPUTING</h4>
+                            <p class="text-cyan-400">IIT Kanpur</p>
+                        </div>
+                        <div class="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-101">
+                            <p class="text-gray-400 text-sm">2021</p>
+                            <h4 class="text-lg font-semibold text-gray-100">MATHEMATICS SEMINAR ON SCIENCE AND ENGINEERING APPLICATIONS (SEA-2021)</h4>
+                            <p class="text-cyan-400">BIT Mesra</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-languagesInterests" class="hidden animate-fade-in">
+                <h2 class="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Languages & Interests</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-zinc-700 p-6 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-3">Languages</h3>
+                        <ul class="space-y-2">
+                            <li class="flex justify-between items-center text-gray-300"><span class="font-medium">BENGALI:</span><span class="text-cyan-400">Fluent</span></li>
+                            <li class="flex justify-between items-center text-gray-300"><span class="font-medium">ENGLISH:</span><span class="text-cyan-400">Fluent</span></li>
+                            <li class="flex justify-between items-center text-gray-300"><span class="font-medium">HINDI:</span><span class="text-cyan-400">Adequate</span></li>
+                            <li class="flex justify-between items-center text-gray-300"><span class="font-medium">FRENCH:</span><span class="text-cyan-400">Elementary</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-zinc-700 p-6 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 hover:scale-102">
+                        <h3 class="text-xl font-semibold text-gray-100 mb-3">Interests</h3>
+                        <p class="text-gray-300 leading-relaxed">
+                            Beyond the algorithms and data, my life is enriched by a vibrant mix of passions. As a musician, I find joy in creating and songwriting, letting melodies and lyrics tell their own stories. I'm also deeply drawn to the discipline and excitement of combat sports, which teach focus and resilience – qualities I value in my professional life too. When I'm not immersed in data or music, you might find me strategizing over a game of chess, diving into a good book, or even seeking the thrill of adventure sports. These diverse interests not only provide balance but also fuel my creativity and problem-solving approach in everything I do.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // --- p5.js Sketch ---
+        const sketch = (p) => {
+            let particles = [];
+            const numParticles = 50;
+            const maxDistance = 100;
+
+            p.setup = () => {
+                const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+                canvas.parent('p5-canvas-container'); // Attach to the specific div
+                canvas.style('position', 'absolute');
+                canvas.style('top', '0');
+                canvas.style('left', '0');
+                canvas.style('z-index', '-1');
+                canvas.style('opacity', '0.05');
+                canvas.style('pointer-events', 'none');
+
+                for (let i = 0; i < numParticles; i++) {
+                    particles.push(new Particle(p));
+                }
+            };
+
+            p.draw = () => {
+                p.clear();
+                p.stroke(200, 200, 200, 30);
+                p.strokeWeight(0.5);
+
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].display();
+
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const d = p.dist(particles[i].pos.x, particles[i].pos.y, particles[j].pos.x, particles[j].pos.y);
+                        if (d < maxDistance) {
+                            p.line(particles[i].pos.x, particles[i].pos.y, particles[j].pos.x, particles[j].pos.y);
+                        }
+                    }
+                }
+            };
+
+            p.windowResized = () => {
+                p.resizeCanvas(p.windowWidth, p.windowHeight);
+                particles = [];
+                for (let i = 0; i < numParticles; i++) {
+                    particles.push(new Particle(p));
+                }
+            };
+        };
+
+        class Particle {
+            constructor(p) {
+                this.p = p;
+                this.pos = p.createVector(p.random(p.width), p.random(p.height));
+                this.vel = p.createVector(p.random(-0.5, 0.5), p.random(-0.5, 0.5));
+                this.size = p.random(1, 3);
+                this.color = p.color(220, 220, 220, 50);
+            }
+
+            update() {
+                this.pos.add(this.vel);
+                if (this.pos.x < 0) this.pos.x = this.p.width;
+                if (this.pos.x > this.p.width) this.pos.x = 0;
+                if (this.pos.y < 0) this.pos.y = this.p.height;
+                if (this.pos.y > this.p.height) this.pos.y = 0;
+            }
+
+            display() {
+                this.p.noStroke();
+                this.p.fill(this.color);
+                this.p.ellipse(this.pos.x, this.pos.y, this.size);
+            }
+        }
+
+        // --- D3.js Skills Bar Chart ---
+        function drawSkillsChart() {
+            const skillsData = [
+                { name: 'Python', proficiency: 90 },
+                { name: 'Scikit-learn', proficiency: 85 },
+                { name: 'SQL', proficiency: 80 },
+                { name: 'Tableau', proficiency: 75 },
+                { name: 'C++', proficiency: 70 },
+                { name: 'Tensorflow', proficiency: 70 },
+                { name: 'NumPy', proficiency: 88 },
+                { name: 'Pandas', proficiency: 87 },
+                { name: 'Seaborn', proficiency: 78 },
+                { name: 'Mediapipe', proficiency: 65 },
+                { name: 'Blazepose', proficiency: 60 },
+                { name: 'MySQL', proficiency: 82 },
+                { name: 'PowerBI', proficiency: 70 },
+            ];
+
+            const svgElement = document.getElementById('skills-chart');
+            if (!svgElement) return; // Exit if element not found
+
+            const svg = d3.select(svgElement);
+            const parentWidth = svgElement.parentElement.clientWidth;
+            const margin = { top: 20, right: 20, bottom: 30, left: 100 };
+            const width = parentWidth - margin.left - margin.right;
+            const height = skillsData.length * 30;
+
+            svg.selectAll('*').remove(); // Clear previous chart elements
+
+            const g = svg.attr("width", width + margin.left + margin.right)
+                         .attr("height", height + margin.top + margin.bottom)
+                         .append("g")
+                         .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const xScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([0, width]);
+
+            const yScale = d3.scaleBand()
+                .domain(skillsData.map(d => d.name))
+                .range([0, height])
+                .padding(0.2);
+
+            g.append("g")
+                .attr("class", "x-axis")
+                .call(d3.axisTop(xScale).ticks(5))
+                .selectAll("text")
+                .attr("fill", "#a7b7c5");
+
+            g.append("g")
+                .attr("class", "y-axis")
+                .call(d3.axisLeft(yScale))
+                .selectAll("text")
+                .attr("fill", "#e6edf3");
+
+            g.selectAll(".bar")
+                .data(skillsData)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", 0)
+                .attr("y", d => yScale(d.name))
+                .attr("width", d => xScale(d.proficiency))
+                .attr("height", yScale.bandwidth())
+                .attr("fill", "#0e7490")
+                .attr("rx", 4)
+                .attr("ry", 4)
+                .on("mouseover", function(event, d) {
+                    d3.select(this).attr("fill", "#22d3ee");
+                    g.append("text")
+                        .attr("class", "proficiency-text")
+                        .attr("x", xScale(d.proficiency) + 5)
+                        .attr("y", yScale(d.name) + yScale.bandwidth() / 2 + 5)
+                        .attr("fill", "#e6edf3")
+                        .attr("font-size", "0.8em")
+                        .text(`${d.proficiency}%`);
+                })
+                .on("mouseout", function() {
+                    d3.select(this).attr("fill", "#0e7490");
+                    g.selectAll(".proficiency-text").remove();
+                });
+
+            g.selectAll(".label")
+                .data(skillsData)
+                .enter().append("text")
+                .attr("class", "label")
+                .attr("x", d => xScale(d.proficiency) + 5)
+                .attr("y", d => yScale(d.name) + yScale.bandwidth() / 2 + 5)
+                .attr("fill", "#a7b7c5")
+                .attr("font-size", "0.8em")
+                .text(d => `${d.proficiency}%`);
+        }
+
+        // --- Navigation Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const navButtons = document.querySelectorAll('nav button');
+            const sections = document.querySelectorAll('main section');
+            const bodyContainer = document.getElementById('body-container');
+
+            // Initialize p5 sketch
+            new p5(sketch, 'p5-canvas-container');
+
+            // Function to show a specific section and hide others
+            const showSection = (sectionId) => {
+                sections.forEach(section => {
+                    section.classList.add('hidden');
+                });
+                document.getElementById(sectionId).classList.remove('hidden');
+
+                // Update active button styling
+                navButtons.forEach(button => {
+                    if (button.id === `nav-${sectionId.replace('section-', '')}`) {
+                        button.classList.add('bg-cyan-500', 'text-zinc-900', 'shadow-md', 'transform', 'scale-105', 'rotate-0');
+                        button.classList.remove('text-gray-300', 'hover:bg-zinc-700', 'hover:text-cyan-400', 'hover:scale-105', 'hover:rotate-3');
+                    } else {
+                        button.classList.remove('bg-cyan-500', 'text-zinc-900', 'shadow-md', 'transform', 'scale-105', 'rotate-0');
+                        button.classList.add('text-gray-300', 'hover:bg-zinc-700', 'hover:text-cyan-400', 'hover:scale-105', 'hover:rotate-3');
+                    }
+                });
+
+                // Redraw D3 chart if Skills section is active
+                if (sectionId === 'section-skills') {
+                    drawSkillsChart();
+                }
+            };
+
+            // Add click listeners to navigation buttons
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const sectionId = `section-${button.id.replace('nav-', '')}`;
+                    showSection(sectionId);
+                });
+            });
+
+            // Set initial active section to Summary on page load
+            showSection('section-summary');
+
+            // Trigger fade-in for the body
+            bodyContainer.classList.remove('opacity-0');
+            bodyContainer.classList.add('opacity-100');
+
+            // Re-draw D3 chart on window resize
+            window.addEventListener('resize', () => {
+                if (!document.getElementById('section-skills').classList.contains('hidden')) {
+                    drawSkillsChart();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

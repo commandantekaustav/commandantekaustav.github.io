@@ -1,0 +1,695 @@
+import React, { useState, useEffect, useRef } from 'react';
+import p5 from 'p5'; // Import p5
+
+// Define the p5.js sketch for background animation
+const sketch = (p) => {
+  let particles = [];
+  const numParticles = 50; // Fewer particles for subtlety
+  const maxDistance = 100; // Max distance for lines between particles
+
+  p.setup = () => {
+    // Create canvas to fill the parent container
+    const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+    canvas.style('position', 'absolute');
+    canvas.style('top', '0');
+    canvas.style('left', '0');
+    canvas.style('z-index', '-1'); // Ensure it's behind content
+    canvas.style('opacity', '0.05'); // Very subtle opacity for dark background
+    canvas.style('pointer-events', 'none'); // Don't block mouse events
+
+    for (let i = 0; i < numParticles; i++) {
+      particles.push(new Particle(p));
+    }
+  };
+
+  p.draw = () => {
+    p.clear(); // Clear the canvas each frame for transparency
+    p.stroke(200, 200, 200, 30); // Very light gray lines, very transparent
+    p.strokeWeight(0.5); // Thin lines
+
+    for (let i = 0; i < particles.length; i++) {
+      particles[i].update();
+      particles[i].display();
+
+      // Connect particles with lines if they are close enough
+      for (let j = i + 1; j < particles.length; j++) {
+        const d = p.dist(particles[i].pos.x, particles[i].pos.y, particles[j].pos.x, particles[j].pos.y);
+        if (d < maxDistance) {
+          p.line(particles[i].pos.x, particles[i].pos.y, particles[j].pos.x, particles[j].pos.y);
+        }
+      }
+    }
+  };
+
+  p.windowResized = () => {
+    p.resizeCanvas(p.windowWidth, p.windowHeight);
+    // Re-initialize particle positions to fit new canvas size
+    particles = [];
+    for (let i = 0; i < numParticles; i++) {
+      particles.push(new Particle(p));
+    }
+  };
+};
+
+// Particle class for the p5.js animation
+class Particle {
+  constructor(p) {
+    this.p = p;
+    this.pos = p.createVector(p.random(p.width), p.random(p.height));
+    this.vel = p.createVector(p.random(-0.5, 0.5), p.random(-0.5, 0.5)); // Slower movement
+    this.size = p.random(1, 3); // Smaller size
+    this.color = p.color(220, 220, 220, 50); // Very light gray particles, very transparent
+  }
+
+  update() {
+    this.pos.add(this.vel);
+    // Wrap around edges
+    if (this.pos.x < 0) this.pos.x = this.p.width;
+    if (this.pos.x > this.p.width) this.pos.x = 0;
+    if (this.pos.y < 0) this.pos.y = this.p.height;
+    if (this.pos.y > this.p.height) this.pos.y = 0;
+  }
+
+  display() {
+    this.p.noStroke();
+    this.p.fill(this.color);
+    this.p.ellipse(this.pos.x, this.pos.y, this.size);
+  }
+}
+
+// P5Wrapper component to embed the p5.js sketch
+const P5Wrapper = ({ sketch }) => {
+  const sketchRef = useRef();
+
+  useEffect(() => {
+    // Initialize p5.js sketch on mount
+    const p5Instance = new p5(sketch, sketchRef.current);
+    // Clean up p5.js sketch on unmount
+    return () => {
+      p5Instance.remove();
+    };
+  }, [sketch]); // Re-run if sketch changes (unlikely here)
+
+  return <div ref={sketchRef} className="absolute inset-0 overflow-hidden"></div>;
+};
+
+
+// Main App component
+const App = () => {
+  // State to manage active section for navigation
+  const [activeSection, setActiveSection] = useState('summary');
+  // State for a subtle animation on load
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    // Set loaded to true after a short delay to trigger animations
+    setLoaded(true);
+  }, []);
+
+  // Function to render section content based on activeSection state
+  const renderSection = () => {
+    switch (activeSection) {
+      case 'summary':
+        return <Summary />;
+      case 'workHistory':
+        return <WorkHistory />;
+      case 'consultancy':
+        return <Consultancy />;
+      case 'projects':
+        return <Projects />;
+      case 'skills':
+        return <Skills />;
+      case 'education':
+        return <Education />;
+      case 'achievements':
+        return <Achievements />;
+      case 'languagesInterests':
+        return <LanguagesInterests />;
+      default:
+        return <Summary />;
+    }
+  };
+
+  return (
+    <div className={`relative min-h-screen bg-gradient-to-br from-zinc-900 to-black font-inter p-4 sm:p-8 transition-opacity duration-1000 ${loaded ? 'opacity-100' : 'opacity-0'}`}>
+      {/* p5.js background animation */}
+      <P5Wrapper sketch={sketch} />
+
+      <div className="relative z-10 max-w-4xl mx-auto bg-zinc-800 shadow-2xl rounded-xl overflow-hidden">
+        {/* Header Section */}
+        <header className="bg-zinc-800 text-white p-6 sm:p-8 rounded-t-xl">
+          <div className="flex flex-col sm:flex-row justify-between items-center animate-fade-in-down">
+            <div className="text-center sm:text-left mb-4 sm:mb-0">
+              <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-1">Kaustav Basu</h1>
+              <p className="text-gray-300 text-lg sm:text-xl">Versatile Data Science Professional</p>
+            </div>
+            <div className="text-center sm:text-right text-gray-300 text-sm sm:text-base">
+              <p>Kolkata, West Bengal, India</p>
+              <p>+919875516924</p>
+              <p>kaustavbasu97@gmail.com</p>
+              <p><a href="https://linkedin.com/in/commandantekaustav/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">linkedin.com/in/commandantekaustav/</a></p>
+            </div>
+          </div>
+        </header>
+
+        {/* Navigation Bar */}
+        <nav className="bg-zinc-950 p-4 shadow-lg">
+          <ul className="flex flex-wrap justify-center gap-2 sm:gap-4 text-sm sm:text-base">
+            {/* Navigation items, dynamically styled based on active section */}
+            {['summary', 'workHistory', 'consultancy', 'projects', 'skills', 'education', 'achievements', 'languagesInterests'].map((section) => (
+              <li key={section}>
+                <button
+                  onClick={() => setActiveSection(section)}
+                  className={`px-3 py-2 rounded-lg font-medium transition-all duration-300 ease-in-out
+                    ${activeSection === section
+                      ? 'bg-cyan-500 text-zinc-900 shadow-md transform scale-105'
+                      : 'text-gray-300 hover:bg-zinc-700 hover:text-cyan-400'
+                    }`}
+                >
+                  {/* Capitalize first letter for display */}
+                  {section.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Main Content Area */}
+        <main className="p-6 sm:p-8">
+          {renderSection()}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+// Summary Section Component
+const Summary = () => (
+  <section className="animate-fade-in">
+    <h2 className="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Professional Summary</h2>
+    <p className="text-gray-300 leading-relaxed text-lg">
+      Versatile Data Science professional (MS Computer Science - Distinction) with a unique blend of hands-on Machine Learning
+      Engineering (building models, automating data pipelines - up to 100x speed-ups) and expertise in designing impactful data
+      science curricula and mentoring hundreds of learners (Python, SQL, ML). Proven ability to translate complex technical
+      concepts into practical applications and data-driven solutions. Eager to leverage a strong foundation in <span className="font-semibold text-cyan-400">Python, Scikit-learn, and Statistical Analysis</span> to contribute to innovative projects in either a development or
+      educational capacity.
+    </p>
+  </section>
+);
+
+// Work History Section Component
+const WorkHistory = () => (
+  <section className="animate-fade-in">
+    <h2 className="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Work History</h2>
+    <div className="space-y-8">
+      {/* Each work experience item */}
+      <WorkExperienceItem
+        title="SUBJECT MATTER EXPERT OF DATA SCIENCE"
+        company="Department of Mentoring, FACEPrep Campus"
+        duration="February 2025 - Present"
+        description={[
+          "Spearheaded design of data science curriculum (Python, SQL, ML: Regression, Classification, NLP) for students, incorporating industry-aligned capstone projects.",
+          "Authored course modules & capstone projects (e.g., 'Predictive Maintenance,' 'Sentiment Analysis') using Scikit-learn, Pandas, & Tableau.",
+          "Trained & evaluated data science trainers, establishing rigorous standards for curriculum delivery.",
+          "Delivered advanced workshops (Applied ML, Data Storytelling, ML Life-cycles) to students, faculty, & professionals."
+        ]}
+      />
+      <WorkExperienceItem
+        title="ASSISTANT PROFESSOR OF CS & AIML"
+        company="School of Technology, Woxsen University"
+        duration="March 2024 - September 2024"
+        description={[
+          "Delivered lectures and conducted coding sessions for B.Tech students in Core CSE and AI & ML, enhancing student understanding and engagement.",
+          "Participated in Curriculum Designing and Course Content development to deliver high quality materials to the students.",
+          "Mentored students on academic and research projects, fostering development in both technical skills and innovative thinking.",
+          "Led in-house development projects in collaboration with students and faculty.",
+          "Served as a jury member for evaluating student internship projects, ensuring high standards of academic and practical excellence.",
+          "Participated as a jury in the Societal Impact Projects, assessing and guiding initiatives aimed at community betterment and social responsibility.",
+          "Participated as a jury in the Final Year Capstone Projects.",
+          "Mentored 9 teams of Freshmen for their Conceptual project.",
+          "Published on Book Chapter in Elsevier with the fellow faculties.",
+          "Mentored the coding club and the music club."
+        ]}
+      />
+      <WorkExperienceItem
+        title="MACHINE LEARNING ENGINEER"
+        company="EEGRAB"
+        duration="October 2023 - February 2024"
+        description={[
+          "Data Modeling, SRS Documentation",
+          "Prototyping and UI/UX Designing",
+          "Handled data preparation for Computer Vision models.",
+          "Written scripts to automate data acquisition and data preparation tasks and sped up the process 20x times.",
+          "Performed modeling for CV and NLP",
+          "Participated in project pitching and direct client interaction."
+        ]}
+      />
+      <WorkExperienceItem
+        title="CODING EDUCATOR (Part time)"
+        company="Bright Champs"
+        duration="February 2022 - August 2022"
+        description={[
+          "Taught Python, Thunkable, and Scratch programming to international students (K12) online.",
+          "Developed interactive lessons aligned with the curriculum and increased student engagement by 33%. Collaborated with other instructors to improve teaching effectiveness."
+        ]}
+      />
+      <WorkExperienceItem
+        title="STUDENT INTERN"
+        company="Ardent Computech PVT. LTD."
+        duration="July 2018 - November 2018"
+        description={[
+          "Implemented ML models using Python from Scratch.",
+          "Built a Linear Regression Model for predicting the air precipitation level in the air using historical data.",
+          "Built a Classification Model using SVM to determine the Loan Eligibility of a customer."
+        ]}
+      />
+    </div>
+  </section>
+);
+
+// Reusable component for Work Experience Items
+const WorkExperienceItem = ({ title, company, duration, description }) => (
+  <div className="relative pl-6 border-l-2 border-gray-600 group hover:border-cyan-500 transition-all duration-300">
+    <div className="absolute -left-2 top-0 w-4 h-4 bg-cyan-500 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+    <h3 className="text-xl font-semibold text-gray-100">{title}</h3>
+    <p className="text-cyan-400 font-medium">{company}</p>
+    <p className="text-gray-400 text-sm mb-2">{duration}</p>
+    <ul className="list-disc list-inside text-gray-300 space-y-1">
+      {description.map((item, index) => (
+        <li key={index} className="flex items-start">
+          <span className="text-cyan-500 mr-2">●</span>
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
+// Consultancy Services Section Component
+const Consultancy = () => (
+  <section className="animate-fade-in">
+    <h2 className="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Consultancy Services</h2>
+    <p className="text-gray-300 leading-relaxed text-lg mb-6">
+      Offering specialized expertise to drive data-driven innovation and enhance organizational capabilities.
+      My services are designed to help businesses leverage Machine Learning and Data Science for impactful results.
+    </p>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <ConsultancyServiceItem
+        title="Data Science Strategy & Implementation"
+        description="Design and implement robust data science strategies, including ML model building, automation of data pipelines for efficiency (up to 100x speed-ups), and integration of advanced analytics."
+      />
+      <ConsultancyServiceItem
+        title="Custom Machine Learning Solutions"
+        description="Develop tailored ML solutions for Computer Vision (e.g., ASL translation), Natural Language Processing, predictive modeling, and classification tasks to address specific business challenges."
+      />
+      <ConsultancyServiceItem
+        title="Data Analysis & Visualization"
+        description="Transform raw data into actionable insights through comprehensive data analysis, KPI identification, and compelling data visualizations using tools like Tableau and PowerBI."
+      />
+      <ConsultancyServiceItem
+        title="Technical Curriculum Development & Training"
+        description="Create and deliver industry-aligned data science curricula (Python, SQL, ML) and advanced workshops for corporate teams or educational institutions, fostering technical growth."
+      />
+      <ConsultancyServiceItem
+        title="Project Mentoring & Technical Guidance"
+        description="Provide expert mentoring and technical guidance on academic and research projects, ensuring high standards of technical excellence and innovative thinking."
+      />
+      <ConsultancyServiceItem
+        title="Data-Driven Decision Making"
+        description="Assist organizations in establishing frameworks and processes for data-driven decision-making, optimizing operational efficiency and strategic planning."
+      />
+    </div>
+  </section>
+);
+
+// Reusable component for Consultancy Service Items
+const ConsultancyServiceItem = ({ title, description }) => (
+  <div className="bg-zinc-700 p-5 rounded-lg shadow-md border border-cyan-700 hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1">
+    <h3 className="text-xl font-semibold text-gray-100 mb-2 flex items-center">
+      <svg className="w-6 h-6 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1m-1.636 6.364l-.707-.707M12 20v-1m-6.364-1.636l-.707.707M3 12H4m1.636-6.364l.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+      {title}
+    </h3>
+    <p className="text-gray-300">{description}</p>
+  </div>
+);
+
+
+// Projects Section Component
+const Projects = () => (
+  <section className="animate-fade-in">
+    <h2 className="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Projects</h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Each project item */}
+      <ProjectItem
+        title="COVID-19 GLOBAL VACCINATION TRACKER"
+        year="2023"
+        description={[
+          "Transformed and Enhanced Data using Tableau Prep and LOD expressions and determined the top 6 Key Performance Indicators.",
+          "Data Visualisation using Tableau Desktop using appropriate charts for providing insights."
+        ]}
+      />
+      <ProjectItem
+        title="CUSTOMER PERSONALITY ANALYSIS DASHBOARD"
+        year="2023"
+        description={[
+          "Processed Data and created new features using Level of Detail expressions and determined top Key Performance Indicators.",
+          "Performed RFM (Recency, Frequency, Monetary Value) Analysis to quantitatively rank and group customers into different segments.",
+          "Data Visualisations using appropriate charts to convey insight in the best way possible."
+        ]}
+      />
+      <ProjectItem
+        title="AMERICAN SIGN LANGUAGE TRANSLATOR USING COMPUTER VISION"
+        year="2022"
+        description={[
+          "Developed a computer vision model using MediaPipe to translate American Sign Language gestures with a probability of 87%."
+        ]}
+      />
+      <ProjectItem
+        title="ANALYSIS OF A TWITTER INTERACTION NETWORK"
+        year="2021"
+        description={[
+          "Analyzed and segmented 100,000 social media users into 5 categories using data visualization and machine learning; identified 20 power users who generated 80% of user-generated content",
+          "Determined the initial spreading rate of content was 10 tweets per second and the growth rate was exponential."
+        ]}
+      />
+      <ProjectItem
+        title="AN EDA ON THE LAST TWO WAVES OF COVID-19"
+        year="2021"
+        description={[]} // No specific description provided in the resume snippet
+      />
+      <ProjectItem
+        title="XRD AND GAUSSIAN SPECTOGRAPHIC ANALYSIS OF LUNAR REGOLITHS FOR FUTURE SCOPE OF EXCAVATION ON LUNAR SURFACE"
+        year="2020"
+        description={[
+          "Analysis of Lunar Regoliths using Spectral analysis.",
+          "Written extensive XRD analysis module using MATLAB.",
+          "Written XRD module for Chandrayaan 2 simulation drive and pilot launch and Gaganyaan trial project."
+        ]}
+      />
+      <ProjectItem
+        title="MORPHOLOGICAL CLASSIFICATION OF GALAXIES USING HUBBLE FORK AND CONTEMPORARY EXPERIMENTAL METHODS"
+        year="2019"
+        description={[
+          "Conducted research study on Sloan Digital Sky Survey database, implementing ETL processes to extract and clean data; leveraged SQL and machine learning to classify data into 10 different groups, resulting in a 50% improvement in classification accuracy"
+        ]}
+      />
+      <ProjectItem
+        title="DETECTION OF HABITABLE EXOPLANETS"
+        year="2018"
+        description={[
+          "Collected a statistical dataset of 10,000 different exoplanets scanned by Kepler2 from the University of Puerto Rico.",
+          "Conducted a study on the performances of machine learning algorithms by detecting habitable exoplanets, resulting in an increase in the accuracy of the algorithms by 15%."
+        ]}
+      />
+    </div>
+    <div className="mt-6">
+      <h3 className="text-xl font-semibold text-gray-100 mb-2">Publication</h3>
+      <div className="bg-zinc-700 p-4 rounded-lg shadow-sm border border-gray-700">
+        <p className="text-gray-300">
+          <span className="font-medium text-cyan-400">2024:</span> BOOK: NECROBOTICS FOR HEALTHCARE APPLICATIONS AND MANAGEMENT Published by Elsevier -
+          Chapter: Ensuring Safety and Ethics in Necrobotics Research through Comprehensive Risk Management and Public Engagement
+        </p>
+      </div>
+    </div>
+  </section>
+);
+
+// Reusable component for Project Items
+const ProjectItem = ({ title, year, description }) => (
+  <div className="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1">
+    <h3 className="text-xl font-semibold text-gray-100 mb-1">{title}</h3>
+    <p className="text-cyan-400 text-sm mb-3">{year}</p>
+    <ul className="list-disc list-inside text-gray-300 space-y-1">
+      {description.length > 0 ? (
+        description.map((item, index) => (
+          <li key={index} className="flex items-start">
+            <span className="text-cyan-500 mr-2">●</span>
+            <span>{item}</span>
+          </li>
+        ))
+      ) : (
+        <li>No specific description provided.</li>
+      )}
+    </ul>
+  </div>
+);
+
+// Skills Section Component
+const Skills = () => (
+  <section className="animate-fade-in">
+    <h2 className="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Skills</h2>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <SkillCategory title="Programming Languages" skills={['C', 'C++', 'Python']} />
+      <SkillCategory title="Database" skills={['MySQL', 'SQLite', 'DB2']} />
+      <SkillCategory title="Data Visualization and BI Tools" skills={['Tableau', 'PowerBI', 'Gephi']} />
+      <SkillCategory title="Data Science Libraries" skills={['NumPy', 'Pandas', 'Seaborn', 'Scikit-learn', 'Tensorflow', 'Mediapipe', 'Blazepose']} />
+    </div>
+  </section>
+);
+
+// Reusable component for Skill Categories
+const SkillCategory = ({ title, skills }) => (
+  <div className="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-shadow duration-300">
+    <h3 className="text-xl font-semibold text-gray-100 mb-3">{title}</h3>
+    <div className="flex flex-wrap gap-2">
+      {skills.map((skill, index) => (
+        <span key={index} className="bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-cyan-800 transition-colors duration-200">
+          {skill}
+        </span>
+      ))}
+    </div>
+  </div>
+);
+
+// Education Section Component
+const Education = () => (
+  <section className="animate-fade-in">
+    <h2 className="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Education</h2>
+    <div className="space-y-6">
+      <EducationItem
+        degree="MASTER OF SCIENCE (COMPUTER SCIENCE)"
+        university="Pondicherry University"
+        year="2022"
+        gpa="9.17"
+        coursework={[
+          "Probability & Statistics",
+          "Social Network Analytics",
+          "Computational Intelligence",
+          "Optimisation Techniques",
+          "Data Analytics using Python",
+          "Introduction to Machine Learning"
+        ]}
+      />
+      <EducationItem
+        degree="BACHELOR OF COMPUTER APPLICATION"
+        university="Maulana Abul Kalam Azad University of Technology"
+        year="2019"
+        gpa="8.55"
+        coursework={[]} // No specific coursework listed for BCA
+      />
+    </div>
+  </section>
+);
+
+// Reusable component for Education Items
+const EducationItem = ({ degree, university, year, gpa, coursework }) => (
+  <div className="bg-zinc-700 p-5 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-shadow duration-300">
+    <h3 className="text-xl font-semibold text-gray-100">{degree}</h3>
+    <p className="text-cyan-400 font-medium">{university}</p>
+    <p className="text-gray-400 text-sm mb-2">Graduation Year: {year} | DGPA: {gpa}</p>
+    {coursework.length > 0 && (
+      <div>
+        <p className="font-semibold text-gray-200 mt-3">Relevant Coursework:</p>
+        <ul className="list-disc list-inside text-gray-300 space-y-1">
+          {coursework.map((item, index) => (
+            <li key={index} className="flex items-start">
+              <span className="text-cyan-500 mr-2">●</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+);
+
+// Achievements Section Component
+const Achievements = () => (
+  <section className="animate-fade-in">
+    <h2 className="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Achievements & Accomplishments</h2>
+    <div className="space-y-6">
+      <AchievementItem
+        year="2023"
+        description="Qualified GATE"
+      />
+      <AchievementItem
+        year="2022"
+        description="University 2nd rank holder in M.Sc"
+      />
+      <AchievementItem
+        year="2021"
+        description="Earned Elite Silver (top 5%) in an IITM(NPTEL) course named The Joy of Computing"
+      />
+      <AchievementItem
+        year="2020"
+        description="AIR 1 in Pondicherry University Entrance Exam"
+      />
+      <AchievementItem
+        year="2019"
+        description="AIR 12 in Central University Common Entrance Test"
+      />
+    </div>
+
+    <div className="mt-8">
+      <h3 className="text-2xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Coursework Skills</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {['DESIGN AND ANALYSIS OF ALGORITHMS', 'AUTOMATA THEORY AND FORMAL LANGUAGES', 'PROBABILITY AND STATISTICS', 'DATA MINING TOOLS', 'PYTHON PROGRAMMING FOR DATA ANALYTICS', 'SOCIAL NETWORK ANALYTICS', 'OPTIMIZATION TECHNIQUES', 'COMPUTATIONAL INTELLIGENCE', 'INTRODUCTION TO MACHINE LEARNING'].map((skill, index) => (
+          <div key={index} className="bg-zinc-700 text-gray-200 p-3 rounded-lg shadow-sm flex items-center hover:bg-zinc-600 transition-colors duration-200">
+            <svg className="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span className="font-medium">{skill}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div className="mt-8">
+      <h3 className="text-2xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Accomplishments (Certifications)</h3>
+      <div className="space-y-6">
+        <AccomplishmentItem
+          year="2022"
+          title="DATA ANALYST USING PYTHON TRACK"
+          source="Datacamp"
+        />
+        <AccomplishmentItem
+          year="2022"
+          title="DATA SCIENTIST USING PYTHON TRACK"
+          source="Datacamp"
+        />
+        <AccomplishmentItem
+          year="2022"
+          title="STATISTICS FUNDAMENTALS WITH PYTHON TRACK"
+          source="Datacamp"
+        />
+        <AccomplishmentItem
+          year="2021"
+          title="BASICS OF RS, GIS AND GNSS"
+          source="Indian Institute of Remote Sensing, ISRO"
+        />
+        <AccomplishmentItem
+          year="2021"
+          title="THE JOY OF COMPUTING USING PYTHON"
+          source="IIT Ropar-NPTEL"
+          details="Percentage Obtained: 88%, Grade: Elite Silver (Top 5%)"
+        />
+        <AccomplishmentItem
+          year="2019"
+          title="MATHEMATICAL THINKING FOR COMPUTER SCIENCE"
+          source="UC San Diego, HSE University and Coursera"
+          details="Grade: 98.78%"
+        />
+        <AccomplishmentItem
+          year="2019"
+          title="SOCIAL PSYCHOLOGY WITH HONORS"
+          source="Wesleyan University and Coursera"
+          details="Grade: 81.23%"
+        />
+        <AccomplishmentItem
+          year="2018"
+          title="DATA-DRIVEN ASTRONOMY"
+          source="University of Sydney and Coursera"
+          details="Grade: 96%"
+        />
+      </div>
+    </div>
+
+    <div className="mt-8">
+      <h3 className="text-2xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Seminars</h3>
+      <div className="space-y-4">
+        <SeminarItem
+          year="2019"
+          title="INTRODUCTION TO ESOTERIC PROGRAMMING LANGUAGES"
+          event="BCA, Final Year Seminar"
+        />
+        <SeminarItem
+          year="2020"
+          title="2ND IEEE WINTER SCHOOL ON FOG/EDGE COMPUTING"
+          event="IIT Kanpur"
+        />
+        <SeminarItem
+          year="2021"
+          title="MATHEMATICS SEMINAR ON SCIENCE AND ENGINEERING APPLICATIONS (SEA-2021)"
+          event="BIT Mesra"
+        />
+      </div>
+    </div>
+  </section>
+);
+
+// Reusable component for Achievement Items
+const AchievementItem = ({ year, description }) => (
+  <div className="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 flex items-center hover:shadow-lg transition-shadow duration-300">
+    <span className="text-cyan-400 font-semibold text-lg mr-4">{year}</span>
+    <p className="text-gray-300">{description}</p>
+  </div>
+);
+
+// Reusable component for Accomplishment Items (Certifications)
+const AccomplishmentItem = ({ year, title, source, details }) => (
+  <div className="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-shadow duration-300">
+    <p className="text-gray-400 text-sm">{year}</p>
+    <h4 className="text-lg font-semibold text-gray-100">{title}</h4>
+    <p className="text-cyan-400">{source}</p>
+    {details && <p className="text-gray-300 text-sm mt-1">{details}</p>}
+  </div>
+);
+
+// Reusable component for Seminar Items
+const SeminarItem = ({ year, title, event }) => (
+  <div className="bg-zinc-700 p-4 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-shadow duration-300">
+    <p className="text-gray-400 text-sm">{year}</p>
+    <h4 className="text-lg font-semibold text-gray-100">{title}</h4>
+    <p className="text-cyan-400">{event}</p>
+  </div>
+);
+
+// Languages & Interests Section Component
+const LanguagesInterests = () => (
+  <section className="animate-fade-in">
+    <h2 className="text-3xl font-bold text-gray-100 mb-4 border-b-2 border-cyan-500 pb-2">Languages & Interests</h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Languages */}
+      <div className="bg-zinc-700 p-6 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-shadow duration-300">
+        <h3 className="text-xl font-semibold text-gray-100 mb-3">Languages</h3>
+        <ul className="space-y-2">
+          <LanguageItem language="BENGALI" proficiency="Fluent" />
+          <LanguageItem language="ENGLISH" proficiency="Fluent" />
+          <LanguageItem language="HINDI" proficiency="Adequate" />
+          <LanguageItem language="FRENCH" proficiency="Elementary" />
+        </ul>
+      </div>
+
+      {/* Interests */}
+      <div className="bg-zinc-700 p-6 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-shadow duration-300">
+        <h3 className="text-xl font-semibold text-gray-100 mb-3">Interests</h3>
+        <div className="flex flex-wrap gap-2">
+          {['Data Storytelling', 'Intelligent Systems', 'Chess', 'Music', 'Songwriting', 'Reading', 'Combat Arts'].map((interest, index) => (
+            <span key={index} className="bg-emerald-900 text-emerald-300 text-sm font-medium px-3 py-1 rounded-full shadow-sm hover:bg-emerald-800 transition-colors duration-200">
+              {interest}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+// Reusable component for Language Items
+const LanguageItem = ({ language, proficiency }) => (
+  <li className="flex justify-between items-center text-gray-300">
+    <span className="font-medium">{language}:</span>
+    <span className="text-cyan-400">{proficiency}</span>
+  </li>
+);
+
+export default App;
+

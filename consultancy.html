@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultancy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+    body, .section-container, .template-example, .cta-box, .why-choose-me {
+        font-family: 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+        background: linear-gradient(135deg, #111 0%, #222 100%);
+        color: #f5f5f5;
+    }
+    header, .navbar, .footer-container {
+        background: linear-gradient(90deg, #000 0%, #222 100%);
+        color: #fff;
+    }
+    .navbar-nav > li > a {
+        color: #fff !important;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: color 0.2s;
+    }
+    .navbar-nav > li > a:hover, .navbar-nav > li.active > a {
+        color: #e0e0e0 !important;
+    }
+    .section-container {
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
+    .template-title-example, .why-choose-me h2 {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 1.5em;
+        color: #fff;
+        margin-bottom: 18px;
+        font-weight: 700;
+        padding-left: 2px;
+        padding-top: 2px;
+        line-height: 1.2;
+    }
+    .fa-icon {
+        color: #fff;
+        font-size: 1.4em;
+        min-width: 32px;
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.15);
+        border-radius: 50%;
+        margin-right: 6px;
+        box-shadow: 0 1px 4px #0002;
+    }
+    .list-icons li {
+        margin-bottom: 10px;
+        font-size: 1.08em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #f5f5f5;
+        background: #232526;
+        border-radius: 8px;
+        padding: 10px 16px;
+        box-shadow: 0 1px 4px #0002;
+    }
+    .template-example {
+        background: linear-gradient(135deg, #181818 0%, #232323 100%);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px #0002;
+        margin-bottom: 28px;
+        padding: 18px 22px 12px 22px;
+        transition: box-shadow 0.2s;
+    }
+    .template-example:hover {
+        box-shadow: 0 6px 24px #fff2;
+    }
+    .cta-box {
+        background: linear-gradient(90deg, #222 0%, #444 100%);
+        color: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px #0002;
+        padding: 30px 30px 30px 30px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .btn-primary {
+        background: #fff;
+        color: #111;
+        border: none;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 12px 32px;
+        font-size: 1.1em;
+        transition: background 0.2s, color 0.2s;
+        margin-top: 18px;
+        box-shadow: 0 2px 8px #0001;
+    }
+    .btn-primary:hover {
+        background: #222;
+        color: #fff;
+    }
+    .img-circle {
+        border-radius: 50%;
+        border: 3px solid #fff;
+        box-shadow: 0 2px 12px #0008;
+    }
+    .lead, .text-lg, .text-gray-700 {
+        color: #e0e0e0 !important;
+        font-size: 1.15em;
+    }
+    .footer-container {
+        background: linear-gradient(90deg, #000 0%, #232526 100%);
+        color: #fff;
+        padding: 24px 0 12px 0;
+        font-size: 1.08em;
+        letter-spacing: 0.5px;
+        box-shadow: 0 -2px 12px #0008;
+    }
+    .footer-container a {
+        color: #fff;
+        text-decoration: underline;
+    }
+    .footer-container a:hover {
+        color: #e0e0e0;
+    }
+    /* Responsive fix for CTA text */
+    .cta-box p.lead {
+        font-size: 1.15em;
+        margin-bottom: 0.8em;
+        line-height: 1.5;
+        word-break: break-word;
+        padding: 0 10px;
+    }
+    @media (max-width: 600px) {
+        .cta-box {
+            padding: 18px 6px 18px 6px;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 12px 0;
+        }
+    }
+    /* Why Choose Me redesign */
+    .why-choose-me {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #232526;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px #0003;
+        padding: 28px 18px 18px 18px;
+        margin-top: 24px;
+    }
+    .why-choose-me h2 {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        color: #fff;
+        font-size: 1.5em;
+        margin-bottom: 18px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding-left: 2px;
+        padding-top: 2px;
+        line-height: 1.2;
+    }
+    .why-choose-me ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        max-width: 420px;
+    }
+    .why-choose-me li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #181818;
+        color: #fff;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        padding: 12px 16px;
+        font-size: 1.08em;
+        box-shadow: 0 1px 4px #0002;
+    }
+    .why-choose-me .fa-icon {
+        font-size: 1.4em;
+        min-width: 32px;
+        min-height: 32px;
+        margin-right: 6px;
+        background: rgba(0,0,0,0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .why-choose-me .portfolio-icon {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        background: url('./assets/images/work01-hover.jpg') center/cover no-repeat;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        margin-right: 6px;
+        box-shadow: 0 1px 4px #0002;
+        vertical-align: middle;
+    }
+    </style>
+</head>
+<body class="minimal">
+<div id="site-border-left"></div>
+<div id="site-border-right"></div>
+<div id="site-border-top"></div>
+<div id="site-border-bottom"></div>
+<header>
+    <nav class="navbar  navbar-fixed-top navbar-default">
+        <div class="container">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"
+                    aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbar-collapse">
+                <ul class="nav navbar-nav ">
+                    <li><a href="./index.html" title="">01 : Home</a></li>
+                    <li><a href="./works.html" title="">02 : Works</a></li>
+                    <li><a href="./about.html" title="">03 : About me</a></li>
+                    <li><a href="./contact.html" title="">04 : Contact</a></li>
+                    <li><a href="./consultancy.html" title="">05 : Consultancy</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container" style="margin-top: 80px;">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h1 class="text-4xl font-extrabold mb-1">Consultancy & Mentorship</h1>
+                <p class="text-lg text-gray-700">Empowering individuals, researchers, and organizations to achieve their goals through expert guidance, technical solutions, and strategic growth.</p>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="section-container">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="template-example">
+                    <h2 class="template-title-example"><span class="fa-icon"><i class="fa fa-user-graduate"></i></span> 1-on-1 Mentorship</h2>
+                    <ul class="list-icons">
+                        <li><span class="fa-icon"><i class="fa fa-user-graduate"></i></span> Exclusive mentorship for select individuals preparing for tech interviews and career transitions.</li>
+                        <li><span class="fa-icon"><i class="fa fa-comments"></i></span> Personalized career guidance, resume reviews, and mock interviews.</li>
+                        <li><span class="fa-icon"><i class="fa fa-lightbulb"></i></span> Long-term grooming for high-potential candidates.</li>
+                        <li><span class="fa-icon"><i class="fa fa-project-diagram"></i></span> Project guidance for capstone, thesis, and industry projects.</li>
+                        <li><span class="fa-icon"><i class="fa fa-users"></i></span> Open source/community project mentorship.</li>
+                    </ul>
+                </div>
+                <div class="template-example">
+                    <h2 class="template-title-example"><span class="fa-icon"><i class="fa fa-flask"></i></span> Academic & Research Support</h2>
+                    <ul class="list-icons">
+                        <li><span class="fa-icon"><i class="fa fa-code"></i></span> Debugging and fixing code from research papers (Python, ML, Data Science, etc.).</li>
+                        <li><span class="fa-icon"><i class="fa fa-chart-bar"></i></span> Data visualization services for academicians and research projects.</li>
+                        <li><span class="fa-icon"><i class="fa fa-chalkboard-teacher"></i></span> Workshops for mid-level academic professionals on data science, analytics, and visualization tools.</li>
+                        <li><span class="fa-icon"><i class="fa fa-handshake"></i></span> Research collaboration (joint publications, grant proposals).</li>
+                    </ul>
+                </div>
+                <div class="template-example">
+                    <h2 class="template-title-example"><span class="fa-icon"><i class="fa fa-brain"></i></span> Data Science & ML Solutions</h2>
+                    <ul class="list-icons">
+                        <li><span class="fa-icon"><i class="fa fa-cogs"></i></span> Data science strategy & implementation (ML model building, analytics integration).</li>
+                        <li><span class="fa-icon"><i class="fa fa-random"></i></span> Data pipeline automation (ETL, workflow optimization, up to 100x speed-ups).</li>
+                        <li><span class="fa-icon"><i class="fa fa-brain"></i></span> Machine learning model development for business and academia.</li>
+                        <li><span class="fa-icon"><i class="fa fa-tachometer-alt"></i></span> Analytics dashboarding (Tableau, PowerBI, custom dashboards).</li>
+                        <li><span class="fa-icon"><i class="fa fa-lightbulb"></i></span> Innovation workshops (AI, ML, Data Science for business leaders).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="template-example">
+                    <h2 class="template-title-example"><span class="fa-icon"><i class="fa fa-rocket"></i></span> Ed-Tech & Business Consulting</h2>
+                    <ul class="list-icons">
+                        <li><span class="fa-icon"><i class="fa fa-rocket"></i></span> Tailored growth strategies for small and emerging ed-tech companies.</li>
+                        <li><span class="fa-icon"><i class="fa fa-cogs"></i></span> Curriculum design, technical training, and upskilling programs for teams.</li>
+                        <li><span class="fa-icon"><i class="fa fa-project-diagram"></i></span> Project-based consulting for data-driven product development and analytics.</li>
+                        <li><span class="fa-icon"><i class="fa fa-search-dollar"></i></span> Technical due diligence for startups and investors.</li>
+                        <li><span class="fa-icon"><i class="fa fa-chart-line"></i></span> Data-driven decision support (KPI design, business analytics).</li>
+                    </ul>
+                </div>
+                <div class="template-example">
+                    <h2 class="template-title-example"><span class="fa-icon"><i class="fa fa-chalkboard"></i></span> Workshops & Corporate Training</h2>
+                    <ul class="list-icons">
+                        <li><span class="fa-icon"><i class="fa fa-chalkboard"></i></span> Custom workshops on machine learning, data visualization, and applied AI.</li>
+                        <li><span class="fa-icon"><i class="fa fa-users"></i></span> Hands-on sessions for academic and industry professionals.</li>
+                        <li><span class="fa-icon"><i class="fa fa-graduation-cap"></i></span> Upskilling programs for teams (customized, hands-on).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top:40px;">
+            <div class="col-md-12 text-center">
+                <div class="cta-box" style="background:linear-gradient(90deg,#06b6d4 0%,#3b82f6 100%);color:#fff;padding:30px;border-radius:16px;box-shadow:0 4px 16px #0002;">
+                    <h2 style="font-weight:700;letter-spacing:1px;">Ready to Accelerate Your Growth?</h2>
+                    <p class="lead">Whether you're an individual, academic, or business, let's work together to unlock your full potential.<br>Contact me for a free initial consultation or to discuss your unique needs.</p>
+                    <a href="mailto:kaustavcodes@gmail.com" class="btn btn-primary btn-lg" style="margin-top:10px;background:#fff;color:#06b6d4;border:none;font-weight:600;box-shadow:0 2px 8px #0001;">Request a Consultation</a>
+                </div>
+            </div>
+        </div>
+        <!-- Why Choose Me Section Redesign -->
+        <div class="row" style="margin-top:40px;">
+            <div class="col-md-12 text-center">
+                <div class="why-choose-me">
+                    <h2><span class="fa-icon"><i class="fa fa-star"></i></span> Why Choose Me?</h2>
+                    <ul>
+                        <li><span class="fa-icon"><i class="fa fa-award"></i></span> MS in Computer Science (Distinction), proven track record in data science and education.</li>
+                        <li><span class="fa-icon"><i class="fa fa-user-tie"></i></span> Experience mentoring hundreds of learners and professionals.</li>
+                        <li><span class="fa-icon"><i class="fa fa-lightbulb"></i></span> Recognized for innovative solutions in both academia and industry.</li>
+                        <li><span class="fa-icon"><i class="fa fa-handshake"></i></span> Trusted by ed-techs, universities, and research teams for strategic guidance.</li>
+                        <li><span class="portfolio-icon"></span> Portfolio of high-impact, real-world projects.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="footer-container text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <p>© Kaustav Basu, 2025</p>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+</html>
