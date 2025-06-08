@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Networks & Chill? Your Guide to Data Science</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: auto 1fr;
+            grid-template-areas:
+                "header header"
+                "controls visual"
+                "explanation explanation";
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+        }
+        .header { grid-area: header; text-align: center; }
+        .controls { grid-area: controls; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .visual-area { grid-area: visual; display: flex; flex-direction: column; gap: 20px;}
+        .explanation { grid-area: explanation; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1, h2, h3 { color: #e91e63; }
+        h1 { font-size: 2.5em; }
+        h2 { font-size: 1.8em; border-bottom: 2px solid #fce4ec; padding-bottom: 10px;}
+        h3 { font-size: 1.2em; margin-top: 0; }
+
+        .control-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        select, input[type="range"] { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd; }
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #play-pause-btn { background-color: #4CAF50; color: white; }
+        #play-pause-btn.paused { background-color: #ff9800; }
+        #reset-btn { background-color: #f44336; color: white; margin-top: 10px; }
+
+        .canvas-container { text-align: center; }
+        canvas {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .stats-display {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        .stat h4 { margin: 0 0 5px 0; color: #e91e63;}
+        .stat p { margin: 0; font-weight: bold; font-size: 1.4em; color: #333;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="header">
+        <h1>Neural Networks & Chill?</h1>
+        <p>Think of a dating app's algorithm as a "Matchmaker's Brain." It learns from every swipe to figure out your type. Let's build our own and teach it to find the perfect match!</p>
+    </header>
+
+    <aside class="controls">
+        <h2>The Setup</h2>
+
+        <div class="control-group">
+            <label for="dataset-select">The Dating Pool (Dataset)</label>
+            <select id="dataset-select">
+                <option value="linear">The Easy Catch (Simple Pattern)</option>
+                <option value="circle">Playing Hard to Get (Circular Pattern)</option>
+                <option value="xor">It's Complicated (XOR Pattern)</option>
+                <option value="spiral">The Whirlwind Romance (Spiral)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="lr-slider">Confidence (Learning Rate): <span id="lr-value">0.1</span></label>
+            <input type="range" id="lr-slider" min="0.001" max="1" step="0.001" value="0.1">
+            <small>How boldly should we change our mind after one date?</small>
+        </div>
+
+        <div class="control-group">
+            <label for="activation-select">Pickup Line Style (Activation)</label>
+            <select id="activation-select">
+                <option value="tanh">The Charmer (Tanh)</option>
+                <option value="sigmoid">The Classic (Sigmoid)</option>
+                <option value="relu">Short & Sweet (ReLU)</option>
+            </select>
+            <small>The style our "brain cells" use to react to info.</small>
+        </div>
+
+        <div class="control-group">
+            <h3>The Game Plan (Network Shape)</h3>
+            <label>Layers of Conversation: 2 Hidden</label>
+            <label>Topics per Layer: 4 Neurons</label>
+            <small>We're keeping this simple: two layers of charm with four "topics" each.</small>
+        </div>
+
+        <button id="play-pause-btn">Start the Night!</button>
+        <button id="reset-btn">New Game (Reset)</button>
+    </aside>
+
+    <main class="visual-area">
+        <div class="card">
+            <h3>The Vibe Check (Decision Boundary)</h3>
+            <div class="canvas-container">
+                <canvas id="main-canvas" width="500" height="500"></canvas>
+            </div>
+        </div>
+        <div class="card stats-display">
+            <div class="stat">
+                <h4>Total Dates</h4>
+                <p id="epoch-count">0</p>
+            </div>
+            <div class="stat">
+                <h4>Awkwardness Meter (Loss)</h4>
+                <p id="loss-value">N/A</p>
+            </div>
+             <div class="stat">
+                <h4>Success Rate (Accuracy)</h4>
+                <p id="accuracy-value">N/A</p>
+            </div>
+        </div>
+    </main>
+
+    <section class="explanation">
+        <h2>What's Actually Happening Here? From First Glance to Perfect Match</h2>
+        <p>You've just set up a "Matchmaker's Brain" (a Neural Network). Here's the magic behind it, explained in terms you'd use with your finance team.</p>
+        <ul>
+            <li><strong>The "Suitors" (Data Points):</strong> On the graph, you see blue and orange dots. Let's say orange means "They'd be a great match!" (Class 1) and blue means "Probably not a good fit" (Class 0). The axes represent their qualities: <strong>"Charm" (horizontal)</strong> and <strong>"Wittiness" (vertical)</strong>.</li>
+            <li><strong>The "Brain Cells" (Neurons):</strong> Our Matchmaker's Brain is made of layers of interconnected "neurons." Think of each neuron as a tiny decision-maker. It takes in information from the previous layer, weighs its importance, and then decides how to react based on its "Pickup Line Style" (Activation Function).</li>
+            <li><strong>Learning via "Dates" (Training):</strong> When you press "Start the Night," the brain looks at a suitor and makes a guess.
+                <ol>
+                    <li><strong>The Guess (Forward Pass):</strong> The suitor's "Charm" and "Wittiness" are fed into the first layer. Each neuron makes a small judgment, passes it to the next layer, and so on, until the final neuron makes the ultimate call: "Good Match" or "Bad Fit."</li>
+                    <li><strong>The "Regret-O-Meter" (Loss Calculation):</strong> The brain then compares its guess to the actual outcome. If it guessed "Good Match" for a "Bad Fit" suitor, the "Awkwardness" (Loss) is high. The goal is to minimize this total awkwardness across all suitors. This is like minimizing risk or variance in a portfolio.</li>
+                    <li><strong>The Learning Moment (Backpropagation):</strong> This is the most brilliant part. The brain works backward from the final "Awkwardness" score. It figures out which neuron in the last layer contributed most to the mistake, then which neurons in the layer before that were most to blame, and so on. It's like a performance review, assigning responsibility for the bad outcome.</li>
+                    <li><strong>The Attitude Adjustment (Weight Update):</strong> Each connection has a "weight," which is like a bias or a preconceived notion (e.g., "I think high charm is most important"). Based on the blame assigned, the brain slightly adjusts these weights. If a connection led to a mistake, its influence is reduced. Your "Confidence" (Learning Rate) slider controls how drastic these adjustments are.</li>
+                </ol>
+            </li>
+            <li><strong>The "Vibe" (Decision Boundary):</strong> The colored background shows the brain's current "vibe." The orange area is where it would predict "Good Match," and the blue area is where it would predict "Bad Fit." As it learns, you see this vibe shift and warp to correctly classify the suitors, just like someone developing their "type" after many dates.</li>
+        </ul>
+        <p>Essentially, you're watching a system perform thousands of tiny cost/benefit analyses per second, optimizing its internal strategy to make the most accurate predictions. <strong>That's the heart of machine learning!</strong></p>
+    </section>
+
+</div>
+
+<script>
+// A simple Matrix library to make life easier
+class Matrix {
+    constructor(rows, cols) {
+        this.rows = rows;
+        this.cols = cols;
+        this.data = Array(rows).fill().map(() => Array(cols).fill(0));
+    }
+
+    static fromArray(arr) {
+        let m = new Matrix(arr.length, 1);
+        m.data = arr.map(val => [val]);
+        return m;
+    }
+
+    toArray() {
+        return this.data.flat();
+    }
+
+    static map(matrix, func) {
+        let result = new Matrix(matrix.rows, matrix.cols);
+        result.data = matrix.data.map(row => row.map(func));
+        return result;
+    }
+
+    static multiply(a, b) {
+        if (a.cols !== b.rows) {
+            console.error("Matrix dimensions are not compatible for multiplication.");
+            return undefined;
+        }
+        let result = new Matrix(a.rows, b.cols);
+        for (let i = 0; i < result.rows; i++) {
+            for (let j = 0; j < result.cols; j++) {
+                let sum = 0;
+                for (let k = 0; k < a.cols; k++) {
+                    sum += a.data[i][k] * b.data[k][j];
+                }
+                result.data[i][j] = sum;
+            }
+        }
+        return result;
+    }
+
+    add(n) {
+        if (n instanceof Matrix) {
+            this.data = this.data.map((row, i) => row.map((val, j) => val + n.data[i][j]));
+        } else {
+            this.data = this.data.map(row => row.map(val => val + n));
+        }
+    }
+    
+    subtract(n) {
+        if (n instanceof Matrix) {
+             this.data = this.data.map((row, i) => row.map((val, j) => val - n.data[i][j]));
+        } else {
+            this.data = this.data.map(row => row.map(val => val - n));
+        }
+    }
+
+    multiply(n) {
+        if (n instanceof Matrix) {
+            this.data = this.data.map((row, i) => row.map((val, j) => val * n.data[i][j]));
+        } else {
+             this.data = this.data.map(row => row.map(val => val * n));
+        }
+    }
+}
+
+// Activation Functions ("Pickup Line Styles")
+const activations = {
+    sigmoid: {
+        func: x => 1 / (1 + Math.exp(-x)),
+        dfunc: y => y * (1 - y)
+    },
+    tanh: {
+        func: x => Math.tanh(x),
+        dfunc: y => 1 - (y * y)
+    },
+    relu: {
+        func: x => Math.max(0, x),
+        dfunc: y => y > 0 ? 1 : 0
+    }
+};
+
+class NeuralNetwork {
+    constructor(inputNodes, hiddenNodes, outputNodes, activation) {
+        this.input_nodes = inputNodes;
+        this.hidden_nodes = hiddenNodes;
+        this.output_nodes = outputNodes;
+
+        this.weights_ih = new Matrix(this.hidden_nodes, this.input_nodes);
+        this.weights_ho = new Matrix(this.output_nodes, this.hidden_nodes);
+        this.weights_ih.data = this.weights_ih.data.map(row => row.map(() => Math.random() * 2 - 1));
+        this.weights_ho.data = this.weights_ho.data.map(row => row.map(() => Math.random() * 2 - 1));
+
+        this.bias_h = new Matrix(this.hidden_nodes, 1);
+        this.bias_o = new Matrix(this.output_nodes, 1);
+        this.bias_h.data = this.bias_h.data.map(row => row.map(() => Math.random() * 2 - 1));
+        this.bias_o.data = this.bias_o.data.map(row => row.map(() => Math.random() * 2 - 1));
+        
+        this.learning_rate = 0.1;
+        this.setActivation(activation);
+    }
+
+    setActivation(activationName) {
+        this.activation = activations[activationName];
+    }
+    
+    setLearningRate(rate) {
+        this.learning_rate = rate;
+    }
+
+    predict(input_array) {
+        // --- Forward Pass ---
+        let inputs = Matrix.fromArray(input_array);
+        let hidden = Matrix.multiply(this.weights_ih, inputs);
+        hidden.add(this.bias_h);
+        hidden = Matrix.map(hidden, this.activation.func);
+
+        let output = Matrix.multiply(this.weights_ho, hidden);
+        output.add(this.bias_o);
+        output = Matrix.map(output, activations.sigmoid.func); // Use sigmoid for final output for classification
+
+        return output.toArray();
+    }
+
+    train(input_array, target_array) {
+        // --- Forward Pass ---
+        let inputs = Matrix.fromArray(input_array);
+        let hidden = Matrix.multiply(this.weights_ih, inputs);
+        hidden.add(this.bias_h);
+        hidden = Matrix.map(hidden, this.activation.func);
+
+        let outputs = Matrix.multiply(this.weights_ho, hidden);
+        outputs.add(this.bias_o);
+        outputs = Matrix.map(outputs, activations.sigmoid.func);
+
+        // --- Backward Pass (Backpropagation) ---
+        let targets = Matrix.fromArray(target_array);
+        let output_errors = new Matrix(targets.rows, targets.cols);
+        output_errors.data = targets.data.map((row, i) => row.map((val, j) => val - outputs.data[i][j]));
+        
+        let gradients = Matrix.map(outputs, activations.sigmoid.dfunc);
+        gradients.multiply(output_errors);
+        gradients.multiply(this.learning_rate);
+        
+        let hidden_T = new Matrix(hidden.cols, hidden.rows);
+        hidden_T.data = hidden.data[0].map((_, colIndex) => hidden.data.map(row => row[colIndex]));
+        
+        let weight_ho_deltas = Matrix.multiply(gradients, hidden_T);
+        
+        this.weights_ho.add(weight_ho_deltas);
+        this.bias_o.add(gradients);
+        
+        let who_T = new Matrix(this.weights_ho.cols, this.weights_ho.rows);
+        who_T.data = this.weights_ho.data[0].map((_, colIndex) => this.weights_ho.data.map(row => row[colIndex]));
+        
+        let hidden_errors = Matrix.multiply(who_T, output_errors);
+        
+        let hidden_gradient = Matrix.map(hidden, this.activation.dfunc);
+        hidden_gradient.multiply(hidden_errors);
+        hidden_gradient.multiply(this.learning_rate);
+
+        let inputs_T = new Matrix(inputs.cols, inputs.rows);
+        inputs_T.data = inputs.data[0].map((_, colIndex) => inputs.data.map(row => row[colIndex]));
+        let weight_ih_deltas = Matrix.multiply(hidden_gradient, inputs_T);
+        
+        this.weights_ih.add(weight_ih_deltas);
+        this.bias_h.add(hidden_gradient);
+    }
+}
+
+
+// --- Visualization Logic ---
+const canvas = document.getElementById('main-canvas');
+const ctx = canvas.getContext('2d');
+const { width, height } = canvas;
+
+let nn;
+let data = [];
+let isTraining = false;
+let epoch = 0;
+let animationFrameId;
+
+const controls = {
+    dataset: document.getElementById('dataset-select'),
+    lrSlider: document.getElementById('lr-slider'),
+    lrValue: document.getElementById('lr-value'),
+    activation: document.getElementById('activation-select'),
+    playPauseBtn: document.getElementById('play-pause-btn'),
+    resetBtn: document.getElementById('reset-btn'),
+};
+
+const stats = {
+    epoch: document.getElementById('epoch-count'),
+    loss: document.getElementById('loss-value'),
+    accuracy: document.getElementById('accuracy-value')
+};
+
+function generateDatasets() {
+    const numSamples = 100;
+    const datasets = {
+        linear: [],
+        circle: [],
+        xor: [],
+        spiral: []
+    };
+
+    // Linear
+    for (let i = 0; i < numSamples; i++) {
+        let x = Math.random() * 2 - 1;
+        let y = Math.random() * 2 - 1;
+        let label = (y > x + (Math.random() - 0.5) * 0.5) ? 1 : 0;
+        datasets.linear.push({ x, y, label });
+    }
+
+    // Circle
+    for (let i = 0; i < numSamples; i++) {
+        let r = Math.random() * 1;
+        let angle = Math.random() * 2 * Math.PI;
+        let x = r * Math.cos(angle);
+        let y = r * Math.sin(angle);
+        let label = (r < 0.6) ? 1 : 0;
+        datasets.circle.push({ x, y, label });
+    }
+
+    // XOR
+    for (let i = 0; i < numSamples; i++) {
+        let x = Math.random() * 2 - 1;
+        let y = Math.random() * 2 - 1;
+        let label = (x * y >= 0) ? 1 : 0;
+        datasets.xor.push({ x, y, label });
+    }
+    
+    // Spiral
+    for (let i = 0; i < numSamples; i++) {
+        let r = i / numSamples * 0.9;
+        let t = 1.75 * i / numSamples * 2 * Math.PI;
+        let x = r * Math.sin(t) + (Math.random() - 0.5) * 0.1;
+        let y = r * Math.cos(t) + (Math.random() - 0.5) * 0.1;
+        let label = (i % 2);
+        datasets.spiral.push({x,y,label});
+    }
+
+    return datasets;
+}
+
+const allData = generateDatasets();
+
+function reset() {
+    cancelAnimationFrame(animationFrameId);
+    isTraining = false;
+    controls.playPauseBtn.textContent = 'Start the Night!';
+    controls.playPauseBtn.classList.remove('paused');
+
+    epoch = 0;
+    stats.epoch.textContent = '0';
+    stats.loss.textContent = 'N/A';
+    stats.accuracy.textContent = 'N/A';
+
+    nn = new NeuralNetwork(2, 4, 1, controls.activation.value);
+    nn.setLearningRate(parseFloat(controls.lrSlider.value));
+
+    data = allData[controls.dataset.value];
+    
+    draw();
+}
+
+function draw() {
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw decision boundary
+    const resolution = 20;
+    const cols = width / resolution;
+    const rows = height / resolution;
+    for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+            let x = (i / cols) * 2 - 1;
+            let y = (j / rows) * 2 - 1;
+            let output = nn.predict([x, y])[0];
+            
+            const blue = 'rgba(80, 150, 255, 0.5)';
+            const orange = 'rgba(255, 165, 0, 0.5)';
+            ctx.fillStyle = `rgba(255, ${165 + (80-165)*output}, ${0 + (255-0)*output}, 0.3)`;
+
+            ctx.fillRect(i * resolution, j * resolution, resolution, resolution);
+        }
+    }
+
+    // Draw data points
+    for (const point of data) {
+        let screenX = (point.x + 1) / 2 * width;
+        let screenY = (point.y + 1) / 2 * height;
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = point.label === 1 ? '#ffA500' : '#007bff'; // Orange for 1, Blue for 0
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+}
+
+function update() {
+    let totalLoss = 0;
+    let correctPredictions = 0;
+
+    // Shuffle data for stochastic gradient descent
+    data.sort(() => Math.random() - 0.5);
+
+    for(const point of data) {
+        let inputs = [point.x, point.y];
+        let targets = [point.label];
+        nn.train(inputs, targets);
+
+        // Calculate stats
+        let prediction = nn.predict(inputs)[0];
+        let error = targets[0] - prediction;
+        totalLoss += error * error; // Mean Squared Error
+        
+        if ((prediction > 0.5 && targets[0] === 1) || (prediction <= 0.5 && targets[0] === 0)) {
+            correctPredictions++;
+        }
+    }
+    
+    epoch++;
+    stats.epoch.textContent = epoch;
+    stats.loss.textContent = (totalLoss / data.length).toFixed(4);
+    stats.accuracy.textContent = `${((correctPredictions / data.length) * 100).toFixed(1)}%`;
+}
+
+function loop() {
+    if (!isTraining) return;
+    
+    update();
+    draw();
+    
+    animationFrameId = requestAnimationFrame(loop);
+}
+
+// Event Listeners
+controls.playPauseBtn.addEventListener('click', () => {
+    isTraining = !isTraining;
+    if (isTraining) {
+        controls.playPauseBtn.textContent = 'Pause the Night...';
+        controls.playPauseBtn.classList.add('paused');
+        loop();
+    } else {
+        controls.playPauseBtn.textContent = 'Resume the Night!';
+        controls.playPauseBtn.classList.remove('paused');
+    }
+});
+
+controls.resetBtn.addEventListener('click', reset);
+controls.dataset.addEventListener('change', reset);
+controls.activation.addEventListener('change', reset);
+controls.lrSlider.addEventListener('input', (e) => {
+    const rate = parseFloat(e.target.value);
+    controls.lrValue.textContent = rate.toFixed(3);
+    nn.setLearningRate(rate);
+});
+
+// Initial setup
+reset();
+
+</script>
+</body>
+</html>
