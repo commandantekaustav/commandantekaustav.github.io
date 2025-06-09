@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Dev Vibe Check: Your Interview Playbook</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        :root {
+            --bg-color: #121212;
+            --card-color: #1E1E1E;
+            --text-color: #EAEAEA;
+            --pink-glow: #F700FF;
+            --blue-glow: #00A3FF;
+            --green-flag: #2DE1AF;
+            --red-flag: #FD297B;
+            --border-color: rgba(255, 255, 255, 0.2);
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.8;
+            padding: 20px 40px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        header h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            background: -webkit-linear-gradient(45deg, var(--blue-glow), var(--pink-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        header p {
+            font-size: 1.2em;
+            color: #aaa;
+        }
+        .strategy-guide {
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 50px;
+        }
+        .strategy-guide h2 {
+            margin-top: 0;
+            color: var(--blue-glow);
+        }
+        .strategy-guide ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .strategy-guide li {
+            margin-bottom: 15px;
+            padding-left: 25px;
+            position: relative;
+        }
+        .strategy-guide li::before {
+            content: '▶';
+            color: var(--pink-glow);
+            position: absolute;
+            left: 0;
+        }
+
+        .section-title {
+            font-size: 2.2em;
+            color: var(--blue-glow);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 50px;
+        }
+        .accordion-item {
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .accordion-header {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .accordion-header h3 { margin: 0; font-size: 1.4em; color: var(--text-color); }
+        .accordion-header .icon { font-size: 1.5em; transition: transform 0.3s ease; }
+        .accordion-content { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.5s ease, padding 0.5s ease; }
+        .accordion-item.active .accordion-header .icon { transform: rotate(45deg); }
+        .explanation-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid var(--pink-glow); }
+        .explanation-box h4 { margin: 0 0 10px 0; color: var(--pink-glow); }
+        .keywords { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+        .keywords li { background: #333; color: var(--text-color); padding: 5px 12px; border-radius: 20px; font-size: 0.9em; font-weight: 600; }
+        .flag-section h4 { font-size: 1.1em; margin-top: 20px; }
+        .flag-section p { margin: 5px 0 20px 20px; }
+        .flag-green h4 { color: var(--green-flag); }
+        .flag-red h4 { color: var(--red-flag); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Game Dev Vibe Check</h1>
+            <p>Your strategic playbook for hiring a Game Development Faculty. <br>Think of this less as an interview, and more as a co-op mission to find the best player.</p>
+        </header>
+
+        <div class="strategy-guide">
+            <h2>The Game Plan: How to Run the Interview</h2>
+            <p>A great interview has a natural flow. Use this timeline to guide your conversation:</p>
+            <ul>
+                <li><strong>First 5-10 Minutes: The Tutorial Level.</strong> Start with the <strong>Easy</strong> questions. Your goal here is to break the ice and check their passion. Are they actually excited about games, or just looking for a job?</li>
+                <li><strong>Next 20-30 Minutes: The Main Quest.</strong> Dive into the <strong>Medium</strong> difficulty questions. This is where you test their core knowledge and practical skills. Can they actually do the job and, more importantly, can they explain *how* they do it?</li>
+                <li><strong>Final 10-15 Minutes: The Boss Fight.</strong> If they've impressed you so far, hit them with one or two <strong>Hard</strong> questions. These test deep thinking, mentorship skills, and how they handle pressure. This is how you separate the good candidates from the great ones.</li>
+            </ul>
+        </div>
+
+        <!-- LEVEL 1: EASY -->
+        <h2 class="section-title">Level 1: The Icebreakers (Easy)</h2>
+        <p style="color: #aaa;">Ask these first. You're looking for genuine passion and good communication.</p>
+        
+        <div class="accordion-item">
+            <div class="accordion-header"><h3>💬 "What game are you playing right now, and what's one thing you love about its design?"</h3><div class="icon">+</div></div>
+            <div class="accordion-content">
+                <div class="explanation-box"><h4>🧠 What You're Really Asking</h4><p>You're checking if they're still a fan. A great professor is passionate and stays current. They should be able to talk about a game—any game—with excitement and insight.</p></div>
+                <h4>Keywords to Listen For:</h4><ul class="keywords"><li>Mechanics</li><li>Player Feedback</li><li>Art Style</li><li>Narrative Design</li><li>User Experience (UX)</li></ul>
+                <div class="flag-section flag-green"><h4>✅ Green Flag: They have a specific, thoughtful answer.</h4><p>"I've been playing *Baldur's Gate 3* and I'm obsessed with how much player choice actually matters. The way the narrative branches feels meaningful, not just cosmetic."</p></div>
+                <div class="flag-section flag-red"><h4>🚩 Red Flag: They can't name a recent game.</h4><p>"Oh, I don't really have time to play games anymore." (Huge red flag. It's like an English professor who doesn't read books.)</p></div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <div class="accordion-header"><h3>💬 "Explain the Game Loop like I'm five."</h3><div class="icon">+</div></div>
+            <div class="accordion-content">
+                <div class="explanation-box"><h4>🧠 What You're Really Asking</h4><p>The Game Loop is the absolute heartbeat of every game. If they can't explain this simply, they can't teach it simply. This is a core communication test.</p></div>
+                <h4>Keywords to Listen For:</h4><ul class="keywords"><li>Input</li><li>Update</li><li>Render (or Draw)</li><li>Frame Rate (FPS)</li><li>State</li></ul>
+                <div class="flag-section flag-green"><h4>✅ Green Flag: They use an analogy.</h4><p>"Think of it like breathing. You breathe in (check for player Input), your body uses the oxygen (Update the game world), and you breathe out (Render a new picture). It happens over and over, very fast. That's a game loop!"</p></div>
+                <div class="flag-section flag-red"><h4>🚩 Red Flag: They drown you in jargon.</h4><p>"It's a non-blocking process thread that polls for asynchronous device input..." (They'll be an intimidating and ineffective teacher).</p></div>
+            </div>
+        </div>
+
+        <!-- LEVEL 2: MEDIUM -->
+        <h2 class="section-title">Level 2: The Core Mechanics (Medium)</h2>
+        <p style="color: #aaa;">The heart of the interview. You're testing their practical, hands-on knowledge.</p>
+        
+        <div class="accordion-item">
+            <div class="accordion-header"><h3>💬 "Unity or Unreal Engine? And why?"</h3><div class="icon">+</div></div>
+            <div class="accordion-content">
+                <div class="explanation-box"><h4>🧠 What You're Really Asking</h4><p>The Ford vs. Chevy of game dev. There's no right answer. You're looking for nuance and if they understand it's about picking the right tool for the job.</p></div>
+                <h4>Keywords to Listen For:</h4><ul class="keywords"><li>Unity</li><li>C#</li><li>Unreal Engine</li><li>C++</li><li>Blueprints</li><li>Mobile vs. AAA</li><li>Team Size</li></ul>
+                <div class="flag-section flag-green"><h4>✅ Green Flag: They discuss trade-offs.</h4><p>"It depends on the goal. Unity is fantastic for mobile and indie teams. Unreal is a powerhouse for stunning graphics. For teaching, I might start with Unreal's Blueprints for non-coders to get them excited, then move to Unity's C# for solid programming fundamentals."</p></div>
+                <div class="flag-section flag-red"><h4>🚩 Red Flag: They're an elitist.</h4><p>"Real developers only use Unreal. Unity is for amateurs." (A rigid mindset is terrible for a teaching environment.)</p></div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <div class="accordion-header"><h3>💬 "How do you avoid group project drama? Talk to me about version control."</h3><div class="icon">+</div></div>
+            <div class="accordion-content">
+                <div class="explanation-box"><h4>🧠 What You're Really Asking</h4><p>You're checking if they know how to work on a team. Version control is like Google Docs for code—it stops people from overwriting each other's work. It's non-negotiable for modern development.</p></div>
+                <h4>Keywords to Listen For:</h4><ul class="keywords"><li>Git</li><li>GitHub (or GitLab)</li><li>Commits</li><li>Branches</li><li>Merging</li><li>Source Control</li></ul>
+                <div class="flag-section flag-green"><h4>✅ Green Flag: They immediately say "Git" and explain its value.</h4><p>"Git is essential. It's the first thing I'd teach. It allows students to collaborate, experiment on 'branches' without breaking the main project, and track every change. It's the industry standard and a vital professional skill."</p></div>
+                <div class="flag-section flag-red"><h4>🚩 Red Flag: They downplay it or suggest a manual process.</h4><p>"Oh, we'd just have students save their files to a shared Dropbox with their name on it." (This is a recipe for disaster and shows they're out of touch with modern practices.)</p></div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <div class="accordion-header"><h3>💬 "How would you teach a total beginner to build their first game?"</h3><div class="icon">+</div></div>
+            <div class="accordion-content">
+                <div class="explanation-box"><h4>🧠 What You're Really Asking</h4><p>This is the money question. Can they empathize with a student and make learning empowering?</p></div>
+                <h4>Keywords to Listen For:</h4><ul class="keywords"><li>Project-Based</li><li>Scaffolding</li><li>Small Wins</li><li>Prototyping</li><li>Visual Scripting</li><li>Break it down</li></ul>
+                <div class="flag-section flag-green"><h4>✅ Green Flag: They focus on a small, achievable project.</h4><p>"We'd start with a 'Flappy Bird' clone. The goal is to get a 'win' fast—to see something they made move on screen. We'd start with visual tools, get the core mechanic working in an hour, and then build on it. It's all about building confidence."</p></div>
+                <div class="flag-section flag-red"><h4>🚩 Red Flag: They start with theory.</h4><p>"First, they'd need a solid foundation in object-oriented programming..." (They will bore every student out of the program in the first week.)</p></div>
+            </div>
+        </div>
+
+        <!-- LEVEL 3: HARD -->
+        <h2 class="section-title">Level 3: The "Boss Fight" Questions (Hard)</h2>
+        <p style="color: #aaa;">For strong candidates only. These test deep thinking and mentorship ability.</p>
+        
+        <div class="accordion-item">
+            <div class="accordion-header"><h3>💬 "A student's project is a total mess of 'spaghetti code'. How do you help them without just fixing it for them?"</h3><div class="icon">+</div></div>
+            <div class="accordion-content">
+                <div class="explanation-box"><h4>🧠 What You're Really Asking</h4><p>This probes their mentoring style. Do they empower the student to solve the problem, or do they just take over? This reveals their patience and teaching philosophy.</p></div>
+                <h4>Keywords to Listen For:</h4><ul class="keywords"><li>Debugging</li><li>Refactoring</li><li>Code Review</li><li>Ask questions</li><li>Guide them</li><li>Problem-solving skills</li></ul>
+                <div class="flag-section flag-green"><h4>✅ Green Flag: They describe a Socratic, guided process.</h4><p>"I wouldn't touch their keyboard. I'd ask questions. 'What were you trying to do here?' 'Can we break this one giant file into smaller, more manageable pieces?' 'Let's add some print statements to see what this variable is doing.' The goal is to teach them *how* to debug, not just fix this one bug."</p></div>
+                <div class="flag-section flag-red"><h4>🚩 Red Flag: They show frustration or arrogance.</h4><p>"Honestly, I'd probably just tell them to start over. It's faster than trying to untangle that mess." (This person lacks the patience and empathy to be a great mentor.)</p></div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <div class="accordion-header"><h3>💬 "What is the next big thing that will change game development, and how would you prepare students for it?"</h3><div class="icon">+</div></div>
+            <div class="accordion-content">
+                <div class="explanation-box"><h4>🧠 What You're Really Asking</h4><p>Are they a forward-thinker? Do they have vision? You want a faculty member who is preparing students for the industry of tomorrow, not just today.</p></div>
+                <h4>Keywords to Listen For:</h4><ul class="keywords"><li>Procedural Generation</li><li>AI / Machine Learning</li><li>Cloud Gaming</li><li>VR / AR</li><li>Fundamental Skills</li><li>Adaptability</li></ul>
+                <div class="flag-section flag-green"><h4>✅ Green Flag: They connect new tech to timeless skills.</h4><p>"I think AI-driven content generation is going to be huge. But I wouldn't just teach them to use an AI tool. I'd teach them the design fundamentals so they can direct that tool effectively. The technology will always change, so my job is to teach them how to learn and adapt. The fundamentals of good design, clean code, and solid problem-solving are timeless."</p></div>
+                <div class="flag-section flag-red"><h4>🚩 Red Flag: They give a generic buzzword answer with no substance.</h4><p>"Probably AI. I'd just have them do a workshop on it." (This shows a shallow understanding and lack of a real teaching strategy.)</p></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const accordionItem = header.parentElement;
+                const accordionContent = header.nextElementSibling;
+
+                document.querySelectorAll('.accordion-item').forEach(item => {
+                    if (item !== accordionItem && item.classList.contains('active')) {
+                        item.classList.remove('active');
+                        item.querySelector('.accordion-content').style.maxHeight = '0';
+                        item.querySelector('.accordion-content').style.padding = '0 20px';
+                    }
+                });
+
+                accordionItem.classList.toggle('active');
+
+                if (accordionItem.classList.contains('active')) {
+                    accordionContent.style.maxHeight = accordionContent.scrollHeight + 'px';
+                    accordionContent.style.padding = '10px 20px 20px';
+                } else {
+                    accordionContent.style.maxHeight = '0';
+                    accordionContent.style.padding = '0 20px';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
