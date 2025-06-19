@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placement Training: Core Algorithms</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-blue: #0d1b2a;
+            --mid-blue: #1b263b;
+            --light-blue: #415a77;
+            --grey-blue: #778da9;
+            --light-grey: #e0e1dd;
+            --white: #ffffff;
+            --green: #84a98c;
+            --red: #e63946;
+            --yellow: #fca311;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            background-color: var(--dark-blue);
+            color: var(--light-grey);
+        }
+
+        header {
+            background-color: var(--mid-blue);
+            color: var(--white);
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--yellow);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 3em;
+        }
+
+        nav {
+            background-color: var(--dark-blue);
+            padding: 10px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav a {
+            color: var(--white);
+            text-decoration: none;
+            padding: 10px 20px;
+            font-weight: 700;
+            transition: background-color 0.3s;
+            border-radius: 5px;
+        }
+
+        nav a:hover {
+            background-color: var(--light-blue);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .topic-section {
+            background-color: var(--mid-blue);
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            font-size: 2.5em;
+            color: var(--yellow);
+            border-bottom: 2px solid var(--light-blue);
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            font-size: 1.8em;
+            color: var(--white);
+            margin-top: 30px;
+        }
+
+        p, li {
+            font-size: 1.1em;
+        }
+
+        code {
+            font-family: 'Roboto Mono', monospace;
+            background-color: var(--dark-blue);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+
+        pre {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #0c1622;
+            color: var(--light-grey);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border-left: 4px solid var(--green);
+        }
+
+        .complexity {
+            background-color: rgba(252, 163, 17, 0.1);
+            border-left: 4px solid var(--yellow);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .complexity strong {
+            color: var(--yellow);
+        }
+
+        /* Interactive Visualization Styles */
+        .viz-container {
+            margin-top: 25px;
+            background-color: #0c1622;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--light-blue);
+        }
+        .viz-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .viz-controls input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--grey-blue);
+            background-color: var(--light-grey);
+            color: var(--dark-blue);
+            font-family: 'Roboto Mono', monospace;
+        }
+        .viz-controls button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: var(--green);
+            color: var(--dark-blue);
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .viz-controls button:hover {
+            background-color: #a1c4a9;
+        }
+        .viz-area {
+            min-height: 80px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .viz-array-el {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            background-color: var(--light-blue);
+            border-radius: 5px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        .viz-status {
+            font-family: 'Roboto Mono', monospace;
+            padding: 15px;
+            background: var(--dark-blue);
+            border-radius: 5px;
+            margin-top: 15px;
+            min-height: 2em;
+        }
+        
+        /* Specific Viz Styles */
+        .viz-hash-map {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .viz-hash-map div {
+            display: inline-block;
+            background: #2a3b50;
+            padding: 5px 8px;
+            border-radius: 4px;
+        }
+        .viz-pointers { display: flex; flex-direction: column; text-align: center; }
+        .ptr { font-size: 0.8em; color: var(--yellow); font-weight: 700;}
+        .current { border: 2px solid var(--yellow); transform: scale(1.1); }
+        .found { border: 2px solid var(--green); background-color: var(--green); color: var(--dark-blue); }
+        .duplicate { border: 2px solid var(--red); background-color: var(--red); color: var(--white); }
+        .min-price { border: 2px solid #57a0d3; }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            background-color: var(--mid-blue);
+            color: var(--grey-blue);
+            font-size: 0.9em;
+        }
+        footer a {
+            color: var(--light-grey);
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Placement Prep: Core Algorithms</h1>
+        <p>A definitive guide to fundamental coding problems with interactive visualizations</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#two-sum">Two Sum</a></li>
+            <li><a href="#contains-duplicate">Contains Duplicate</a></li>
+            <li><a href="#buy-sell-stock">Buy & Sell Stock</a></li>
+            <li><a href="#gcd-array">GCD of Array</a></li>
+            <li><a href="#pascal-triangle">Pascal's Triangle II</a></li>
+            <li><a href="#majority-element">Majority Element</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- Topic 1: Two Sum -->
+        <section id="two-sum" class="topic-section">
+            <h2>1. Two Sum</h2>
+            <p>Given an array of integers <code>nums</code> and an integer <code>target</code>, return indices of the two numbers such that they add up to <code>target</code>. You may assume that each input would have exactly one solution, and you may not use the same element twice.</p>
+            
+            <h3>Algorithm Breakdown (Optimized)</h3>
+            <p>The brute-force approach of checking every pair of numbers is too slow (O(n²)). A much better solution uses a hash map (a dictionary in Python) to trade space for time.</p>
+            <ol>
+                <li>Create an empty hash map to store numbers we've seen and their indices.</li>
+                <li>Iterate through the array with both the index and value.</li>
+                <li>For each number, calculate its <code>complement</code> (i.e., <code>target - current_number</code>).</li>
+                <li>Check if this <code>complement</code> exists as a key in our hash map.
+                    <ul>
+                        <li>If it exists, we have found our pair! Return the index of the complement (from the map) and the index of the current number.</li>
+                        <li>If it doesn't exist, add the current number and its index to the hash map to check against in future iterations.</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3>Pseudocode</h3>
+            <pre><code>FUNCTION twoSum(nums, target):
+  map = new HashMap()
+  FOR i FROM 0 TO length(nums) - 1:
+    current_num = nums[i]
+    complement = target - current_num
+    IF map.contains(complement):
+      RETURN [map.get(complement), i]
+    ELSE:
+      map.put(current_num, i)
+  END FOR
+END FUNCTION</code></pre>
+
+            <h3>Complexity Analysis</h3>
+            <div class="complexity">
+                <p><strong>Time Complexity: O(n)</strong>. We iterate through the list containing n elements only once. Each lookup and insertion in the hash map takes constant time on average, O(1).</p>
+                <p><strong>Space Complexity: O(n)</strong>. In the worst case, we might store all n elements in the hash map if the solution pair is at the very end of the array.</p>
+            </div>
+
+            <h3>Interactive Visualization</h3>
+            <div class="viz-container">
+                <div class="viz-controls">
+                    <label>Array:</label>
+                    <input type="text" id="ts-array" value="2, 7, 11, 15">
+                    <label>Target:</label>
+                    <input type="number" id="ts-target" value="9">
+                    <button onclick="vizTwoSum()">Run</button>
+                </div>
+                <div id="ts-viz-array" class="viz-area"></div>
+                <div class="viz-status" id="ts-viz-status">Status: Ready</div>
+                <div class="viz-hash-map" id="ts-viz-map"><strong>Hash Map (value: index)</strong></div>
+            </div>
+
+            <h3>Optimized Python Solution</h3>
+            <pre><code>def two_sum(nums: list[int], target: int) -> list[int]:
+    """
+    Finds two numbers in a list that sum up to a target value.
+
+    This function uses a hash map to achieve O(n) time complexity.
+    """
+    num_map = {}  # To store number -> index
+    for i, num in enumerate(nums):
+        complement = target - num
+        if complement in num_map:
+            return [num_map[complement], i]
+        num_map[num] = i
+    return [] # Should not be reached based on problem description
+
+# Example:
+# two_sum([2, 7, 11, 15], 9) -> returns [0, 1]
+</code></pre>
+        </section>
+
+        <!-- Topic 2: Contains Duplicate -->
+        <section id="contains-duplicate" class="topic-section">
+            <h2>2. Contains Duplicate</h2>
+            <p>Given an integer array <code>nums</code>, return <code>true</code> if any value appears at least twice in the array, and <code>false</code> if every element is distinct.</p>
+            
+            <h3>Algorithm Breakdown (Optimized)</h3>
+            <p>Similar to Two Sum, we can use a hash-based data structure—this time, a hash set—to keep track of the numbers we've already encountered.</p>
+            <ol>
+                <li>Create an empty hash set.</li>
+                <li>Iterate through the array.</li>
+                <li>For each number, check if it's already in the hash set.
+                    <ul>
+                        <li>If it is, we've found a duplicate! Return <code>true</code> immediately.</li>
+                        <li>If it's not, add the number to the hash set to record that we've seen it.</li>
+                    </ul>
+                </li>
+                <li>If the loop finishes without finding any duplicates, it means all elements are distinct. Return <code>false</code>.</li>
+            </ol>
+            <p>A clever Pythonic alternative is to compare the length of the array with the length of a set created from the array. If they are different, it means duplicates were removed, so duplicates must have existed.</p>
+
+            <h3>Pseudocode</h3>
+            <pre><code>FUNCTION containsDuplicate(nums):
+  seen_set = new HashSet()
+  FOR each num IN nums:
+    IF seen_set.contains(num):
+      RETURN true
+    ELSE:
+      seen_set.add(num)
+  END FOR
+  RETURN false
+END FUNCTION</code></pre>
+
+            <h3>Complexity Analysis</h3>
+            <div class="complexity">
+                <p><strong>Time Complexity: O(n)</strong>. We iterate through the list of n elements once. Hash set lookups and insertions are O(1) on average.</p>
+                <p><strong>Space Complexity: O(n)</strong>. In the worst case (all elements are unique), the hash set will store all n elements.</p>
+            </div>
+
+            <h3>Interactive Visualization</h3>
+            <div class="viz-container">
+                <div class="viz-controls">
+                    <label>Array:</label>
+                    <input type="text" id="cd-array" value="1, 2, 3, 1">
+                    <button onclick="vizContainsDuplicate()">Run</button>
+                </div>
+                <div id="cd-viz-array" class="viz-area"></div>
+                <div class="viz-status" id="cd-viz-status">Status: Ready</div>
+                <div class="viz-hash-map" id="cd-viz-set"><strong>Hash Set</strong></div>
+            </div>
+
+            <h3>Optimized Python Solution</h3>
+            <pre><code>def contains_duplicate(nums: list[int]) -> bool:
+    """
+    Checks if a list contains any duplicate numbers.
+    
+    This solution leverages the property of sets to not allow duplicates.
+    Converting a list to a set and comparing lengths is a concise way
+    to check for uniqueness.
+    """
+    return len(nums) != len(set(nums))
+
+# Alternative using an explicit set for clarity:
+def contains_duplicate_explicit(nums: list[int]) -> bool:
+    seen = set()
+    for num in nums:
+        if num in seen:
+            return True
+        seen.add(num)
+    return False
+
+# Example:
+# contains_duplicate([1, 2, 3, 1]) -> returns True
+# contains_duplicate([1, 2, 3, 4]) -> returns False
+</code></pre>
+        </section>
+
+        <!-- Topic 3: Best Time to Buy and Sell Stock -->
+        <section id="buy-sell-stock" class="topic-section">
+            <h2>3. Best Time to Buy and Sell Stock</h2>
+            <p>You are given an array <code>prices</code> where <code>prices[i]</code> is the price of a given stock on the <code>i-th</code> day. You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock. Return the maximum profit you can achieve. If you cannot achieve any profit, return 0.</p>
+            
+            <h3>Algorithm Breakdown (One Pass)</h3>
+            <p>We can solve this in a single pass using two variables: one to keep track of the minimum price found so far, and another for the maximum profit.</p>
+            <ol>
+                <li>Initialize <code>min_price</code> to the first price and <code>max_profit</code> to 0.</li>
+                <li>Iterate through the prices starting from the second day.</li>
+                <li>For each day's price:
+                    <ul>
+                        <li>Calculate the potential profit if we sold today: <code>current_price - min_price</code>.</li>
+                        <li>Update <code>max_profit</code> if this potential profit is greater than the current <code>max_profit</code>.</li>
+                        <li>Update <code>min_price</code> if the current price is lower than the current <code>min_price</code>. This sets us up for calculating future profits.</li>
+                    </ul>
+                </li>
+                <li>After the loop, <code>max_profit</code> will hold the answer.</li>
+            </ol>
+
+            <h3>Pseudocode</h3>
+            <pre><code>FUNCTION maxProfit(prices):
+  IF prices is empty:
+    RETURN 0
+  
+  min_price = prices[0]
+  max_profit = 0
+  
+  FOR i FROM 1 TO length(prices) - 1:
+    current_price = prices[i]
+    potential_profit = current_price - min_price
+    max_profit = max(max_profit, potential_profit)
+    min_price = min(min_price, current_price)
+    
+  RETURN max_profit
+END FUNCTION</code></pre>
+
+            <h3>Complexity Analysis</h3>
+            <div class="complexity">
+                <p><strong>Time Complexity: O(n)</strong>. We iterate through the list of n prices just once.</p>
+                <p><strong>Space Complexity: O(1)</strong>. We only use a few variables to store state, regardless of the input size.</p>
+            </div>
+
+            <h3>Interactive Visualization</h3>
+            <div class="viz-container">
+                <div class="viz-controls">
+                    <label>Prices:</label>
+                    <input type="text" id="bss-array" value="7, 1, 5, 3, 6, 4">
+                    <button onclick="vizBuySellStock()">Run</button>
+                </div>
+                <div id="bss-viz-array" class="viz-area"></div>
+                <div class="viz-status" id="bss-viz-status">Status: Ready</div>
+            </div>
+
+            <h3>Optimized Python Solution</h3>
+            <pre><code>def max_profit(prices: list[int]) -> int:
+    """
+    Calculates the maximum profit from buying and selling a stock once.
+
+    This solution uses a one-pass approach to find the lowest buy price
+    and calculate the maximum profit seen so far.
+    """
+    min_price = float('inf')
+    max_profit = 0
+    
+    for price in prices:
+        # Potential profit if we sell today
+        profit = price - min_price
+        
+        # Update max profit
+        if profit > max_profit:
+            max_profit = profit
+            
+        # Update min price for future calculations
+        if price < min_price:
+            min_price = price
+            
+    return max_profit
+
+# Example:
+# max_profit([7, 1, 5, 3, 6, 4]) -> returns 5 (buy at 1, sell at 6)
+</code></pre>
+        </section>
+
+        <!-- Topic 4: GCD of Array -->
+        <section id="gcd-array" class="topic-section">
+            <h2>4. Find Greatest Common Divisor of Array</h2>
+            <p>Given an integer array <code>nums</code>, return the greatest common divisor (GCD) of the smallest and largest number in <code>nums</code>.</p>
+            
+            <h3>Algorithm Breakdown</h3>
+            <p>This problem combines two simpler concepts: finding the minimum and maximum elements in an array, and then finding the GCD of those two numbers.</p>
+            <ol>
+                <li>Find the smallest number (<code>min_val</code>) and the largest number (<code>max_val</code>) in the input array. A single pass is sufficient for this.</li>
+                <li>Calculate the GCD of <code>min_val</code> and <code>max_val</code>. The most famous and efficient algorithm for this is <strong>Euclid's Algorithm</strong>.</li>
+            </ol>
+            <p><strong>Euclid's Algorithm:</strong> To find GCD(a, b), if b is 0, the answer is a. Otherwise, the GCD is the same as GCD(b, a % b). We repeat this process until the second number becomes 0.</p>
+
+            <h3>Pseudocode</h3>
+            <pre><code>FUNCTION findGCD(nums):
+  min_val = min(nums)
+  max_val = max(nums)
+  RETURN gcd_recursive(min_val, max_val)
+
+FUNCTION gcd_recursive(a, b):
+  IF b == 0:
+    RETURN a
+  ELSE:
+    RETURN gcd_recursive(b, a MOD b)
+END FUNCTION</code></pre>
+
+            <h3>Complexity Analysis</h3>
+            <div class="complexity">
+                <p><strong>Time Complexity: O(n + log(k))</strong>, where n is the number of elements in the array and k is the value of the smaller of the two numbers (min/max). O(n) to find the min and max, and O(log(k)) for Euclid's algorithm.</p>
+                <p><strong>Space Complexity: O(1)</strong> if using an iterative GCD, or O(log(k)) for the recursion stack if using a recursive GCD.</p>
+            </div>
+            
+            <h3>Interactive Visualization</h3>
+            <div class="viz-container">
+                <div class="viz-controls">
+                    <label>Array:</label>
+                    <!-- FIX: Changed ID from 'gcd-array' to 'gcd-input' to avoid conflict with section ID -->
+                    <input type="text" id="gcd-input" value="2, 5, 6, 8, 10">
+                    <button onclick="vizGcdArray()">Run</button>
+                </div>
+                <div id="gcd-viz-array" class="viz-area"></div>
+                <div class="viz-status" id="gcd-viz-status">Status: Ready</div>
+            </div>
+
+            <h3>Optimized Python Solution</h3>
+            <pre><code>import math
+
+def find_gcd_of_array(nums: list[int]) -> int:
+    """
+    Finds the GCD of the smallest and largest numbers in an array.
+    """
+    min_val = min(nums)
+    max_val = max(nums)
+    
+    # Python's math library has a built-in gcd function.
+    return math.gcd(min_val, max_val)
+
+# Manual implementation of Euclid's Algorithm for understanding:
+def manual_gcd(a: int, b: int) -> int:
+    while b:
+        a, b = b, a % b
+    return a
+
+def find_gcd_of_array_manual(nums: list[int]) -> int:
+    min_val = min(nums)
+    max_val = max(nums)
+    return manual_gcd(min_val, max_val)
+
+# Example:
+# find_gcd_of_array([2, 5, 6, 8, 10]) -> min=2, max=10, gcd(2, 10)=2
+# find_gcd_of_array([7, 5, 6, 8, 3]) -> min=3, max=8, gcd(3, 8)=1
+</code></pre>
+        </section>
+
+        <!-- Topic 5: Pascal's Triangle II -->
+        <section id="pascal-triangle" class="topic-section">
+            <h2>5. Pascal's Triangle II</h2>
+            <p>Given an integer <code>rowIndex</code>, return the <code>rowIndex</code>-th (0-indexed) row of Pascal's triangle.</p>
+            <p>In Pascal's triangle, each number is the sum of the two numbers directly above it.</p>
+            
+            <h3>Algorithm Breakdown</h3>
+            <p>We can generate the required row by iteratively building each row from the previous one, starting from row 0. We only need to store the previous row to calculate the current one, which is space-efficient.</p>
+            <ol>
+                <li>Start with the 0th row, which is just <code>[1]</code>.</li>
+                <li>Loop from 1 up to the target <code>rowIndex</code>.</li>
+                <li>In each iteration, calculate the next row based on the current row. A new row always starts and ends with 1. The elements in between are the sum of adjacent pairs from the previous row.</li>
+                <li>For example, to get row 3 from row 2 (<code>[1, 2, 1]</code>):
+                    <ul>
+                        <li>Start with <code>[1]</code>.</li>
+                        <li>Add <code>1+2=3</code>, <code>2+1=3</code>.</li>
+                        <li>End with <code>[1]</code>. The result is <code>[1, 3, 3, 1]</code>.</li>
+                    </ul>
+                </li>
+                <li>After the loop, the current row is our answer.</li>
+            </ol>
+            
+            <h3>Pseudocode</h3>
+            <pre><code>FUNCTION getPascalsRow(rowIndex):
+  row = [1]
+  FOR i FROM 1 TO rowIndex:
+    next_row = [1]
+    FOR j FROM 0 TO length(row) - 2:
+      sum = row[j] + row[j+1]
+      next_row.append(sum)
+    END FOR
+    next_row.append(1)
+    row = next_row
+  END FOR
+  RETURN row
+END FUNCTION</code></pre>
+            
+            <h3>Complexity Analysis</h3>
+            <div class="complexity">
+                <p><strong>Time Complexity: O(k²)</strong>, where k is the <code>rowIndex</code>. This is because we generate k rows, and each row i has i+1 elements, leading to a triangular summation of work (1 + 2 + 3 + ... + k), which is O(k²).</p>
+                <p><strong>Space Complexity: O(k)</strong>. We only need to store the previous row to generate the next one, and the longest row has k+1 elements.</p>
+            </div>
+
+            <h3>Interactive Visualization</h3>
+            <div class="viz-container">
+                <div class="viz-controls">
+                    <label>Row Index:</label>
+                    <input type="number" id="pt-row" value="5" min="0" max="15">
+                    <button onclick="vizPascalsTriangle()">Run</button>
+                </div>
+                <div id="pt-viz-area" class="viz-area" style="flex-direction: column; align-items: flex-start;"></div>
+                <div class="viz-status" id="pt-viz-status">Status: Ready</div>
+            </div>
+            
+            <h3>Optimized Python Solution</h3>
+            <pre><code>def get_pascals_row(rowIndex: int) -> list[int]:
+    """
+    Returns the specified row of Pascal's triangle.
+
+    This solution iteratively builds each row, using O(k) space
+    where k is the rowIndex.
+    """
+    row = [1]
+    for _ in range(rowIndex):
+        # A new row is formed by a 1, sums of adjacent pairs, and a final 1.
+        # We can calculate it by padding the previous row with 0s and summing.
+        # e.g., [1, 2, 1, 0] + [0, 1, 2, 1] = [1, 3, 3, 1]
+        row = [x + y for x, y in zip(row + [0], [0] + row)]
+    return row
+
+# Example:
+# get_pascals_row(3) -> returns [1, 3, 3, 1]
+</code></pre>
+        </section>
+        
+        <!-- Topic 6: Majority Element -->
+        <section id="majority-element" class="topic-section">
+            <h2>6. Majority Element</h2>
+            <p>Given an array <code>nums</code> of size <code>n</code>, return the majority element. The majority element is the element that appears more than <code>⌊n / 2⌋</code> times. You may assume that the majority element always exists in the array.</p>
+            
+            <h3>Algorithm Breakdown (Boyer-Moore Voting Algorithm)</h3>
+            <p>While a hash map or sorting can solve this, the most brilliant and optimal solution is the Boyer-Moore Voting Algorithm, which works in O(n) time and O(1) space.</p>
+            <p>The intuition is that if we pair up every majority element with a non-majority element, the majority element will still be left over at the end.</p>
+            <ol>
+                <li>Initialize a <code>candidate</code> element and a <code>count</code> to 0.</li>
+                <li>Iterate through the array.</li>
+                <li>For each number:
+                    <ul>
+                        <li>If <code>count</code> is 0, set the current number as the new <code>candidate</code>.</li>
+                        <li>If the current number is the same as the <code>candidate</code>, increment <code>count</code>.</li>
+                        <li>If the current number is different from the <code>candidate</code>, decrement <code>count</code>.</li>
+                    </ul>
+                </li>
+                <li>After the loop, the <code>candidate</code> variable will hold the majority element.</li>
+            </ol>
+            
+            <h3>Pseudocode</h3>
+            <pre><code>FUNCTION majorityElement(nums):
+  count = 0
+  candidate = null
+  
+  FOR each num IN nums:
+    IF count == 0:
+      candidate = num
+    
+    IF num == candidate:
+      count = count + 1
+    ELSE:
+      count = count - 1
+      
+  RETURN candidate
+END FUNCTION</code></pre>
+            
+            <h3>Complexity Analysis</h3>
+            <div class="complexity">
+                <p><strong>Time Complexity: O(n)</strong>. We iterate through the list of n elements just once.</p>
+                <p><strong>Space Complexity: O(1)</strong>. We only use two variables (candidate and count), regardless of the input size.</p>
+            </div>
+
+            <h3>Interactive Visualization</h3>
+            <div class="viz-container">
+                <div class="viz-controls">
+                    <label>Array:</label>
+                    <input type="text" id="me-array" value="2, 2, 1, 1, 1, 2, 2">
+                    <button onclick="vizMajorityElement()">Run</button>
+                </div>
+                <div id="me-viz-array" class="viz-area"></div>
+                <div class="viz-status" id="me-viz-status">Status: Ready</div>
+            </div>
+            
+            <h3>Optimized Python Solution</h3>
+            <pre><code>def majority_element(nums: list[int]) -> int:
+    """
+    Finds the majority element using the Boyer-Moore Voting Algorithm.
+    
+    This algorithm is efficient, using O(n) time and O(1) space.
+    """
+    count = 0
+    candidate = None
+    
+    for num in nums:
+        if count == 0:
+            candidate = num
+        
+        count += 1 if num == candidate else -1
+            
+    return candidate
+
+# Example:
+# majority_element([3, 2, 3]) -> returns 3
+# majority_element([2, 2, 1, 1, 1, 2, 2]) -> returns 2
+</code></pre>
+        </section>
+
+    </div>
+
+    <script>
+        // --- Utility Functions ---
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function parseArrayInput(inputId) {
+            const input = document.getElementById(inputId).value;
+            return input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+        }
+
+        function createArrayElements(vizId, nums) {
+            const container = document.getElementById(vizId);
+            container.innerHTML = '';
+            nums.forEach((num, index) => {
+                const el = document.createElement('div');
+                el.className = 'viz-array-el';
+                el.id = `${vizId}-el-${index}`;
+                el.textContent = num;
+                container.appendChild(el);
+            });
+        }
+        
+        function highlightElement(baseId, index, className) {
+             const el = document.getElementById(`${baseId}-el-${index}`);
+             if (el) el.classList.add(className);
+        }
+
+        function resetHighlights(baseId, count) {
+            for(let i=0; i<count; i++) {
+                const el = document.getElementById(`${baseId}-el-${i}`);
+                if (el) el.className = 'viz-array-el';
+            }
+        }
+
+        // --- Visualization Logic ---
+
+        // 1. Two Sum
+        async function vizTwoSum() {
+            const nums = parseArrayInput('ts-array');
+            const target = parseInt(document.getElementById('ts-target').value);
+            const status = document.getElementById('ts-viz-status');
+            const mapViz = document.getElementById('ts-viz-map');
+            
+            createArrayElements('ts-viz-array', nums);
+            mapViz.innerHTML = '<strong>Hash Map (value: index)</strong>';
+
+            const numMap = {};
+            for (let i = 0; i < nums.length; i++) {
+                resetHighlights('ts-viz-array', nums.length);
+                highlightElement('ts-viz-array', i, 'current');
+
+                const num = nums[i];
+                const complement = target - num;
+                status.textContent = `Current: ${num}. Need: ${complement}.`;
+                await sleep(1500);
+
+                if (complement in numMap) {
+                    const complementIndex = numMap[complement];
+                    status.textContent = `Found! ${num} + ${complement} = ${target}. Indices: [${complementIndex}, ${i}]`;
+                    highlightElement('ts-viz-array', i, 'found');
+                    highlightElement('ts-viz-array', complementIndex, 'found');
+                    return;
+                }
+
+                numMap[num] = i;
+                mapViz.innerHTML += `<div>${num}: ${i}</div>`;
+                status.textContent = `Added ${num} to map.`;
+                await sleep(1500);
+            }
+            status.textContent = 'No solution found.';
+        }
+
+        // 2. Contains Duplicate
+        async function vizContainsDuplicate() {
+            const nums = parseArrayInput('cd-array');
+            const status = document.getElementById('cd-viz-status');
+            const setViz = document.getElementById('cd-viz-set');
+
+            createArrayElements('cd-viz-array', nums);
+            setViz.innerHTML = '<strong>Hash Set</strong>';
+            
+            const seen = new Set();
+            for (let i = 0; i < nums.length; i++) {
+                resetHighlights('cd-viz-array', nums.length);
+                highlightElement('cd-viz-array', i, 'current');
+
+                const num = nums[i];
+                status.textContent = `Checking ${num}...`;
+                await sleep(1000);
+
+                if (seen.has(num)) {
+                    status.textContent = `Duplicate found: ${num}! Returning true.`;
+                    highlightElement('cd-viz-array', i, 'duplicate');
+                    // Highlight original occurrence
+                    const originalIndex = nums.indexOf(num);
+                     if (originalIndex !== i) highlightElement('cd-viz-array', originalIndex, 'duplicate');
+                    return;
+                }
+                seen.add(num);
+                setViz.innerHTML = `<strong>Hash Set</strong><div>{ ${Array.from(seen).join(', ')} }</div>`;
+                status.textContent = `Added ${num} to set.`;
+                await sleep(1000);
+            }
+            status.textContent = 'No duplicates found. Returning false.';
+        }
+        
+        // 3. Buy Sell Stock
+        async function vizBuySellStock() {
+            const prices = parseArrayInput('bss-array');
+            const status = document.getElementById('bss-viz-status');
+            
+            createArrayElements('bss-viz-array', prices);
+
+            if (prices.length < 2) {
+                status.textContent = 'Not enough days to trade.';
+                return;
+            }
+
+            let minPrice = prices[0];
+            let maxProfit = 0;
+            let minIndex = 0;
+            
+            highlightElement('bss-viz-array', 0, 'min-price');
+            status.textContent = `Start. Min price: ${minPrice}, Max profit: 0.`;
+            await sleep(1500);
+
+            for (let i = 1; i < prices.length; i++) {
+                resetHighlights('bss-viz-array', prices.length);
+                highlightElement('bss-viz-array', i, 'current');
+                highlightElement('bss-viz-array', minIndex, 'min-price');
+
+                const price = prices[i];
+                const profit = price - minPrice;
+                
+                status.textContent = `Day ${i+1} (Price: ${price}). Potential profit: ${price} - ${minPrice} = ${profit}.`;
+                await sleep(1500);
+
+                if (profit > maxProfit) {
+                    maxProfit = profit;
+                    status.textContent = `New max profit! ${maxProfit}.`;
+                    await sleep(1500);
+                }
+                
+                if (price < minPrice) {
+                    minPrice = price;
+                    minIndex = i;
+                    resetHighlights('bss-viz-array', prices.length);
+                    highlightElement('bss-viz-array', i, 'min-price');
+                    status.textContent = `New minimum price found: ${minPrice}.`;
+                    await sleep(1500);
+                }
+            }
+            status.textContent = `Finished. Final Max Profit: ${maxProfit}.`;
+        }
+        
+        // 4. GCD of Array
+        async function vizGcdArray() {
+            // FIX: Changed ID from 'gcd-array' to 'gcd-input'
+            const nums = parseArrayInput('gcd-input');
+            const status = document.getElementById('gcd-viz-status');
+            
+            createArrayElements('gcd-viz-array', nums);
+
+            const minVal = Math.min(...nums);
+            const maxVal = Math.max(...nums);
+            const minIndex = nums.indexOf(minVal);
+            const maxIndex = nums.indexOf(maxVal);
+
+            status.textContent = `Found min: ${minVal} and max: ${maxVal}.`;
+            highlightElement('gcd-viz-array', minIndex, 'min-price');
+            highlightElement('gcd-viz-array', maxIndex, 'found');
+            await sleep(2000);
+            
+            let a = maxVal;
+            let b = minVal;
+            
+            status.textContent = `Calculating GCD(${a}, ${b}) using Euclid's Algorithm...`;
+            await sleep(1500);
+            
+            while(b) {
+                status.textContent = `GCD(${a}, ${b}) -> GCD(${b}, ${a} % ${b} = ${a % b})`;
+                [a, b] = [b, a % b];
+                await sleep(2000);
+            }
+            
+            status.textContent = `Finished. GCD is ${a}.`;
+        }
+
+        // 5. Pascal's Triangle
+        async function vizPascalsTriangle() {
+            const rowIndex = parseInt(document.getElementById('pt-row').value);
+            const vizArea = document.getElementById('pt-viz-area');
+            const status = document.getElementById('pt-viz-status');
+            vizArea.innerHTML = '';
+            
+            let row = [1];
+            status.textContent = `Generating Row 0...`;
+            displayPascalRow(row, 0);
+            await sleep(500);
+
+            for(let i=0; i < rowIndex; i++) {
+                status.textContent = `Generating Row ${i+1} from Row ${i}...`;
+                await sleep(1000);
+                
+                const nextRow = [1];
+                for(let j=0; j < row.length - 1; j++) {
+                    nextRow.push(row[j] + row[j+1]);
+                }
+                nextRow.push(1);
+                row = nextRow;
+                
+                displayPascalRow(row, i+1);
+                await sleep(500);
+            }
+            status.textContent = `Finished. Row ${rowIndex} is [${row.join(', ')}].`;
+        }
+
+        function displayPascalRow(row, rowIndex) {
+            const vizArea = document.getElementById('pt-viz-area');
+            const rowContainer = document.createElement('div');
+            rowContainer.className = 'viz-area';
+            row.forEach(num => {
+                const el = document.createElement('div');
+                el.className = 'viz-array-el';
+                el.textContent = num;
+                rowContainer.appendChild(el);
+            });
+            vizArea.appendChild(rowContainer);
+        }
+
+        // 6. Majority Element
+        async function vizMajorityElement() {
+            const nums = parseArrayInput('me-array');
+            const status = document.getElementById('me-viz-status');
+            createArrayElements('me-viz-array', nums);
+
+            let count = 0;
+            let candidate = null;
+
+            for(let i=0; i<nums.length; i++) {
+                resetHighlights('me-viz-array', nums.length);
+                highlightElement('me-viz-array', i, 'current');
+                
+                const num = nums[i];
+
+                if (count === 0) {
+                    candidate = num;
+                    status.textContent = `Count is 0. New candidate is ${candidate}.`;
+                    await sleep(1500);
+                }
+
+                if (num === candidate) {
+                    count++;
+                } else {
+                    count--;
+                }
+                
+                status.textContent = `Current: ${num}. Candidate: ${candidate}. Count: ${count}.`;
+                await sleep(1500);
+            }
+            status.textContent = `Finished. The majority element is ${candidate}.`;
+            const finalIndex = nums.lastIndexOf(candidate);
+            if(finalIndex > -1) highlightElement('me-viz-array', finalIndex, 'found');
+        }
+    </script>
+    
+    <footer>
+        <p>Instructor: Miss. Moushreeta Debroy</p>
+        <p>Copyright &copy; 2025 <a href="https://www.faceprep.in" target="_blank" rel="noopener noreferrer">www.faceprep.in</a>. All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>
