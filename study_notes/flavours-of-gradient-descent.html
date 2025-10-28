@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Flavors of Gradient Descent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .card { background-color: white; border-radius: 1rem; padding: 2rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); display: flex; flex-direction: column; }
+        .math-box { background-color: #f1f5f9; border-left: 4px solid #64748b; padding: 1rem 1.5rem; border-radius: 0.5rem; font-family: 'ui-monospace', 'SFMono-Regular', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 1rem; overflow-x: auto; color: #1e293b; }
+        .highlight { background: linear-gradient(to right, #f59e0b, #ea580c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; }
+        .action-button { background-color: #4f46e5; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; text-align: center; }
+        .action-button:hover { background-color: #4338ca; }
+        .action-button:disabled { background-color: #a5b4fc; cursor: not-allowed; }
+        .control-button { background-color: #e2e8f0; color: #475569; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: 2px solid transparent;}
+        .control-button.active { background-color: #c7d2fe; color: #4338ca; border-color: #6366f1; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2">
+                The Flavors of <span class="highlight">Gradient Descent</span>
+            </h1>
+            <p class="text-lg text-gray-500">Comparing the different paths to the optimal solution.</p>
+        </header>
+
+        <div class="grid grid-cols-1 gap-8">
+            
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">The Core Problem: Speed vs. Stability</h2>
+                <p class="mb-4 text-gray-600">We know that Gradient Descent's goal is to find the bottom of the error landscape. The "Batch" method we learned is very reliable—it looks at every single data point before taking a step, ensuring it always moves in the true steepest direction. But what if you have a million data points? Calculating the error and gradient for all of them just to take <em>one tiny step</em> is incredibly inefficient.</p>
+                <p class="mb-4 text-gray-600">To solve this, data scientists developed different "flavors" of Gradient Descent that trade a little bit of step-by-step accuracy for a massive gain in overall speed. The underlying math of the update rule remains the same; what changes is <em>how much data we look at</em> to calculate the gradient for each step.</p>
+            </div>
+
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">Interactive Demo: Visualizing the Descent Paths</h2>
+                <p class="mb-6 text-gray-600">This demo visualizes the "error landscape" from a top-down view. The center of the contours is the "bottom of the valley"—the perfect solution. Select a Gradient Descent flavor and click "Run" to see the path it takes. Pay close attention to the <strong>Cost History</strong> chart on the right, which shows how the error decreases with each step.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 h-[450px] relative rounded-lg bg-gray-50 p-2">
+                        <canvas id="gdVizChart"></canvas>
+                    </div>
+                    <div class="flex flex-col justify-center space-y-4">
+                        <div>
+                            <p class="font-semibold mb-2">Select an Optimizer:</p>
+                            <div class="flex flex-col space-y-2" id="optimizer-selector">
+                                <button class="control-button active" data-optimizer="batch">Batch Gradient Descent</button>
+                                <button class="control-button" data-optimizer="sgd">Stochastic Gradient Descent (SGD)</button>
+                                <button class="control-button" data-optimizer="mini-batch">Mini-Batch Gradient Descent</button>
+                            </div>
+                        </div>
+                         <div class="card p-4 bg-gray-50">
+                            <h3 class="font-bold text-lg mb-2">Cost History</h3>
+                            <div class="h-[150px]"><canvas id="costHistoryChart"></canvas></div>
+                        </div>
+                        <button id="runBtn" class="action-button">Run Simulation</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">The Mathematics Behind the Flavors</h2>
+                <p class="mb-4 text-gray-600">The famous update rule, <code>θ := θ - α * ∇J(θ)</code>, is the same for all flavors. The difference is in how we calculate the gradient, <code>∇J(θ)</code>. Let's look at the gradient calculation for the slope, <code>θ₁</code>, in each case.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                     <div>
+                        <h3 class="text-xl font-bold mb-2">Batch Gradient Descent</h3>
+                        <p class="mb-4 text-sm text-gray-600">Calculates the gradient by summing up the errors over the <strong>entire dataset</strong> of size <code>n</code>.</p>
+                        <div class="math-box text-sm">∇J(θ₁) = (1/n) * Σᵢ<sub class="text-xs"> (from 1 to n)</sub> (h(xᵢ) - yᵢ) * xᵢ</div>
+                     </div>
+                      <div>
+                        <h3 class="text-xl font-bold mb-2">Stochastic Gradient Descent (SGD)</h3>
+                        <p class="mb-4 text-sm text-gray-600">Calculates the gradient using just <strong>one single, randomly chosen data point</strong>, <code>i</code>, at each step.</p>
+                        <div class="math-box text-sm">∇J(θ₁) = (h(xᵢ) - yᵢ) * xᵢ</div>
+                     </div>
+                     <div>
+                        <h3 class="text-xl font-bold mb-2">Mini-Batch Gradient Descent</h3>
+                        <p class="mb-4 text-sm text-gray-600">Calculates the gradient over a <strong>small "mini-batch"</strong> of data of size <code>b</code>.</p>
+                        <div class="math-box text-sm">∇J(θ₁) = (1/b) * Σᵢ<sub class="text-xs"> (from 1 to b)</sub> (h(xᵢ) - yᵢ) * xᵢ</div>
+                     </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">Comparing the Methods</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                     <div>
+                        <h3 class="text-xl font-bold mb-2">Batch Gradient Descent</h3>
+                        <p class="mb-4 text-sm text-gray-600"><strong>Analogy: The Careful Planner.</strong> This method reads an entire map of the terrain (the whole dataset) before deciding on the single best direction for the next step. It's guaranteed to take the most direct, smoothest path downhill.</p>
+                        <ul class="text-sm space-y-2">
+                            <li><strong class="text-green-700">Pro:</strong> Very accurate and stable convergence. The path is not noisy, and the cost decreases smoothly.</li>
+                            <li><strong class="text-red-700">Con:</strong> Extremely slow and memory-intensive for large datasets. One "epoch" (one pass through the data) involves only one update step.</li>
+                        </ul>
+                     </div>
+                      <div>
+                        <h3 class="text-xl font-bold mb-2">Stochastic Gradient Descent (SGD)</h3>
+                        <p class="mb-4 text-sm text-gray-600"><strong>Analogy: The Impatient Explorer.</strong> This method doesn't look at a map at all. It just looks at the ground under its feet (a single, random data point), picks a direction, and immediately takes a step. It takes many more steps, and the path is very noisy and erratic, but it moves much, much faster overall.</p>
+                         <ul class="text-sm space-y-2">
+                            <li><strong class="text-green-700">Pro:</strong> Very fast computation per step. Can escape shallow local minima due to its randomness.</li>
+                            <li><strong class="text-red-700">Con:</strong> Very noisy path. The cost function will jump up and down erratically. It never truly "settles" at the minimum but bounces around it.</li>
+                        </ul>
+                     </div>
+                     <div>
+                        <h3 class="text-xl font-bold mb-2">Mini-Batch Gradient Descent</h3>
+                        <p class="mb-4 text-sm text-gray-600"><strong>Analogy: The Practical Hiker.</strong> This is the best of both worlds and the method used almost everywhere. The hiker doesn't look at the whole map or just their feet. They look at a small section of the map right around them (a "mini-batch" of data), decide on a good direction, and take a step. It's a perfect compromise.</p>
+                         <ul class="text-sm space-y-2">
+                            <li><strong class="text-green-700">Pro:</strong> A great balance of speed and stability. Computationally efficient.</li>
+                            <li><strong class="text-red-700">Con:</strong> Has an extra hyperparameter to tune (the batch size). The cost still jitters but is much less noisy than SGD.</li>
+                        </ul>
+                     </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">Key Takeaways from the Simulation</h2>
+                <ul class="list-disc list-inside space-y-3 text-gray-700">
+                    <li><strong>Smooth vs. Noisy Convergence:</strong> Notice how the cost history for Batch GD is a smooth curve, while SGD's is extremely jagged and Mini-Batch's is somewhere in between. This is the classic trade-off in action.</li>
+                    <li><strong>The "Stochastic Bounce":</strong> You correctly observed that the noisy methods don't land perfectly on the red dot. This is their nature. They converge to a <em>region</em> of good solutions, not a single point. This randomness can sometimes be a benefit, preventing the model from getting stuck in a suboptimal valley.</li>
+                    <li><strong>Epochs vs. Steps:</strong> An <strong>epoch</strong> is one full pass through the entire dataset. In Batch GD, 1 epoch = 1 update step. In Mini-Batch GD with a dataset of 1000 and a batch size of 100, 1 epoch = 10 update steps. In SGD, 1 epoch = 1000 update steps. This is why the stochastic methods appear to move so much faster in the demo.</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const getElem = id => document.getElementById(id);
+
+        const vizElements = {
+            runBtn: getElem('runBtn'),
+            selector: getElem('optimizer-selector'),
+            costValue: getElem('cost-value'),
+            vizCtx: getElem('gdVizChart').getContext('2d'),
+            costCtx: getElem('costHistoryChart').getContext('2d')
+        };
+
+        let vizChart, costChart;
+        let currentOptimizer = 'batch';
+        let animationFrameId;
+
+        const trueTheta = [5, 5]; 
+        const costFunction = (theta) => Math.pow(theta[0] - trueTheta[0], 2) + Math.pow(theta[1] - trueTheta[1], 2);
+        const gradient = (theta) => [2 * (theta[0] - trueTheta[0]), 2 * (theta[1] - trueTheta[1])];
+
+        const drawCostSurface = () => {
+            const ctx = vizElements.vizCtx;
+            const width = ctx.canvas.width;
+            const height = ctx.canvas.height;
+            ctx.clearRect(0, 0, width, height);
+
+            for (let i = 20; i > 0; i--) {
+                ctx.beginPath();
+                ctx.ellipse(width / 2, height / 2, (width / 2.2) * (i / 20), (height / 2.2) * (i / 20), 0, 0, 2 * Math.PI);
+                ctx.fillStyle = `rgba(79, 70, 229, ${0.02 + (1 - i / 20) * 0.08})`;
+                ctx.fill();
+            }
+            
+            ctx.beginPath();
+            ctx.arc(width / 2, height / 2, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ef4444';
+            ctx.fill();
+        };
+
+        const runSimulation = () => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            vizElements.runBtn.disabled = true;
+            
+            let theta = [0, 0];
+            let path = [{x: theta[0], y: theta[1]}];
+            let costHistory = [costFunction(theta)];
+            
+            const learningRate = 0.1;
+            const steps = 50;
+            let stepCount = 0;
+            
+            const step = () => {
+                if (stepCount >= steps) {
+                    vizElements.runBtn.disabled = false;
+                    return;
+                }
+
+                let grad;
+                if (currentOptimizer === 'batch') {
+                    grad = gradient(theta);
+                } else if (currentOptimizer === 'sgd') {
+                    const trueGrad = gradient(theta);
+                    grad = [trueGrad[0] + (Math.random() - 0.5) * 10, trueGrad[1] + (Math.random() - 0.5) * 10];
+                } else { // mini-batch
+                    const trueGrad = gradient(theta);
+                    grad = [trueGrad[0] + (Math.random() - 0.5) * 3, trueGrad[1] + (Math.random() - 0.5) * 3];
+                }
+
+                theta[0] -= learningRate * grad[0];
+                theta[1] -= learningRate * grad[1];
+                
+                path.push({x: theta[0], y: theta[1]});
+                costHistory.push(costFunction(theta));
+                
+                drawCostSurface();
+                drawPath(path);
+                updateCostChart(costHistory);
+
+                stepCount++;
+                animationFrameId = requestAnimationFrame(step);
+            };
+            
+            animationFrameId = requestAnimationFrame(step);
+        };
+
+        const drawPath = (path) => {
+            const ctx = vizElements.vizCtx;
+            const scaleX = (val) => (vizChart.scales.x.getPixelForValue(val));
+            const scaleY = (val) => (vizChart.scales.y.getPixelForValue(val));
+
+            ctx.beginPath();
+            ctx.moveTo(scaleX(path[0].x), scaleY(path[0].y));
+            for (let i = 1; i < path.length; i++) {
+                ctx.lineTo(scaleX(path[i].x), scaleY(path[i].y));
+            }
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            path.forEach((p, i) => {
+                ctx.beginPath();
+                ctx.arc(scaleX(p.x), scaleY(p.y), 3, 0, 2 * Math.PI);
+                ctx.fillStyle = i === path.length - 1 ? '#dc2626' : 'rgba(251, 146, 60, 0.7)';
+                ctx.fill();
+            });
+        };
+
+        const updateCostChart = (history) => {
+            costChart.data.labels = history.map((_, i) => i);
+            costChart.data.datasets[0].data = history;
+            costChart.update();
+        };
+
+        const createCharts = () => {
+            vizChart = new Chart(vizElements.vizCtx, {
+                type: 'scatter',
+                data: { datasets: [] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { x: { min: -1, max: 11 }, y: { min: -1, max: 11 } },
+                    plugins: { legend: { display: false } },
+                    animation: false, events: []
+                },
+                plugins: [{
+                    id: 'customCanvasDrawing',
+                    beforeDraw: (chart) => {
+                        const ctx = chart.ctx;
+                        ctx.save();
+                        drawCostSurface();
+                        ctx.restore();
+                    }
+                }]
+            });
+
+            costChart = new Chart(vizElements.costCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Cost (MSE)',
+                        data: [],
+                        borderColor: '#4f46e5',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: 'Step' } },
+                        y: { title: { display: true, text: 'Cost' }, beginAtZero: true }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        };
+
+        // --- INITIALIZATION ---
+        createCharts();
+        drawCostSurface();
+        
+        vizElements.selector.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                currentOptimizer = e.target.dataset.optimizer;
+                document.querySelectorAll('.control-button').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    vizElements.runBtn.disabled = false;
+                }
+                drawCostSurface();
+                updateCostChart([]);
+            }
+        });
+
+        vizElements.runBtn.addEventListener('click', runSimulation);
+    });
+    </script>
+</body>
+</html>

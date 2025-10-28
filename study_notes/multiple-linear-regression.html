@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Linear Regression: Using Many Features</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-3d"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .card { background-color: white; border-radius: 1rem; padding: 2rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); display: flex; flex-direction: column; }
+        .math-box { background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 1rem 1.5rem; border-radius: 0.5rem; font-family: 'ui-monospace', 'SFMono-Regular', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 1rem; overflow-x: auto; color: #1e293b; }
+        .highlight { background: linear-gradient(to right, #0ea5e9, #2563eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; }
+        .action-button { background-color: #4f46e5; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; text-align: center; }
+        .action-button:hover { background-color: #4338ca; }
+        .action-button:disabled { background-color: #a5b4fc; cursor: not-allowed; }
+        .toggle-bg:checked { background-color: #4f46e5; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2">
+                From Line to Plane: <span class="highlight">Multiple Linear Regression</span>
+            </h1>
+            <p class="text-lg text-gray-500">Expanding our model to capture a more complete story.</p>
+        </header>
+
+        <div class="grid grid-cols-1 gap-8">
+            
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">The Core Idea: Beyond a Single Cause</h2>
+                <p class="mb-4 text-gray-600">Simple Linear Regression is powerful, but it assumes a single feature (like "House Size") is enough to tell the whole story. In reality, outcomes are complex. A house's price doesn't just depend on its size; it also depends on the number of bedrooms, the age of the house, its location, and more.</p>
+                <p class="mb-4 text-gray-600"><strong>Multiple Linear Regression</strong> extends our model to handle multiple input features. Instead of fitting a <em>line</em> to our data, we are now fitting a <em>plane</em> (with two features) or a <em>hyperplane</em> (with more than two features). The goal is the same: find the flat surface that best passes through our cloud of data points.</p>
+                 <div class="h-[400px] w-full bg-gray-50 rounded-lg p-2 mt-4">
+                    <canvas id="hyperplaneChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">The Mathematics: An Expanded Equation</h2>
+                <p class="mb-4 text-gray-600">The hypothesis function simply expands to include a new weight (<code>θ</code>) for each new feature (<code>x</code>). For a model with <em>n</em> features, the general equation is:</p>
+                <div class="math-box"><code>h(x) = θ₀ + θ₁x₁ + θ₂x₂ + ... + θₙxₙ</code></div>
+                <ul class="mt-4 space-y-2 text-sm">
+                   <li><strong><code>h(x)</code></strong>: The predicted value (e.g., predicted price).</li>
+                   <li><strong><code>θ₀</code></strong>: The intercept, or the baseline value when all features are zero.</li>
+                   <li><strong><code>θ₁</code></strong>: The coefficient for the first feature (x₁). It represents the change in the predicted value for a one-unit increase in x₁, <em>holding all other features constant</em>.</li>
+                   <li><strong><code>x₁</code></strong>: The value of the first feature (e.g., 1500 sq ft).</li>
+                   <li><strong><code>θₙ</code></strong>: The coefficient for the n-th feature.</li>
+                   <li><strong><code>xₙ</code></strong>: The value of the n-th feature.</li>
+                </ul>
+                <p class="mt-4 text-gray-600">The cost function (MSE) and the Gradient Descent algorithm work in exactly the same way as before, but now they have to find the optimal value for every single <code>θ</code> simultaneously.</p>
+            </div>
+
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">Interactive Demo: The Curse of Different Scales</h2>
+                <p class="mb-4 text-gray-600">A new challenge arises when our features have vastly different scales (e.g., "House Size" from 500-5000 vs. "Years Since Renovation" from 0-20). This creates a very narrow, steep-sided valley in the error landscape. When you run Gradient Descent with scaling turned <strong>off</strong>, watch the coefficients and error explode to <code>NaN</code>. This is intentional! It shows the process failing. Then, turn <strong>on</strong> "Feature Scaling" and run it again to see the smooth, stable convergence.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 h-[450px] relative rounded-lg bg-gray-50 p-2">
+                        <canvas id="scalingDemoChart"></canvas>
+                    </div>
+                    <div class="flex flex-col justify-center space-y-4">
+                        <div class="flex items-center justify-center">
+                            <label for="scalingToggle" class="flex items-center cursor-pointer">
+                                <span class="mr-3 text-gray-700">Feature Scaling</span>
+                                <div class="relative">
+                                    <input type="checkbox" id="scalingToggle" class="sr-only">
+                                    <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="card p-4 bg-gray-50">
+                            <h3 class="font-bold text-lg mb-2">Model Coefficients</h3>
+                            <p class="text-sm"><strong>Intercept (θ₀):</strong> <span id="theta0Val" class="font-mono">0.00</span></p>
+                            <p class="text-sm"><strong>Size Coeff (θ₁):</strong> <span id="theta1Val" class="font-mono">0.00</span></p>
+                            <p class="text-sm"><strong>Age Coeff (θ₂):</strong> <span id="theta2Val" class="font-mono">0.00</span></p>
+                            <hr class="my-2">
+                            <p class="text-sm"><strong>Error (MSE):</strong> <span id="mseVal" class="font-mono">N/A</span></p>
+                        </div>
+                        <button id="runScalingDemo" class="action-button">Run Gradient Descent</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">A New Danger: Multicollinearity</h2>
+                <p class="mb-4 text-gray-600"><strong>Multicollinearity</strong> occurs when two or more of your input features are highly correlated with each other. For example, if you have features for "House Size in Sq Ft" and "House Size in Sq Meters," they are perfectly correlated and provide redundant information.</p>
+                <p class="mb-4 text-gray-600"><strong>Why is this a problem?</strong> It makes the model's coefficients unstable and difficult to interpret. The model doesn't know how to assign credit. If size increases, should it increase the coefficient for "Sq Ft" or the one for "Sq Meters"? It might give one a large positive coefficient and the other a large negative one, which makes no real-world sense.</p>
+                <p class="mb-4 text-gray-600"><strong>How to fix it:</strong></p>
+                <ul class="list-disc list-inside ml-4 space-y-2">
+                    <li>Use a correlation heatmap (which we learned about in EDA) to identify highly correlated features.</li>
+                    <li>Remove one of the redundant features.</li>
+                    <li>Combine the correlated features into a single new feature.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- 3D HYPERPLANE CHART ---
+        const hyperplaneCtx = document.getElementById('hyperplaneChart').getContext('2d');
+        const planeData = [];
+        for (let i = 0; i < 50; i++) {
+            const x = Math.random() * 10;
+            const z = Math.random() * 5;
+            const noise = (Math.random() - 0.5) * 3;
+            const y = 1.5 * x + 3 * z - 5 + noise;
+            planeData.push({x, y, z});
+        }
+
+        const planeChart = new Chart(hyperplaneCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Data Points',
+                    data: planeData,
+                    backgroundColor: 'rgba(37, 99, 235, 0.7)',
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Visualizing a Plane of Best Fit for 2 Features' },
+                     chartJsPlugin3d: { enabled: true, xRotation: 20, yRotation: -30, zPadding: 0 }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Feature 1 (Size)' } },
+                    y: { title: { display: true, text: 'Outcome (Price)' } },
+                    z: { type: 'linear', position: 'bottom', title: { display: true, text: 'Feature 2 (Bedrooms)' } }
+                }
+            }
+        });
+        let rotation = -30;
+        function animatePlane() {
+            rotation += 0.2;
+            planeChart.options.plugins.chartJsPlugin3d.yRotation = rotation;
+            planeChart.update();
+            requestAnimationFrame(animatePlane);
+        }
+        animatePlane();
+
+        // --- FEATURE SCALING DEMO ---
+        const scalingCtx = document.getElementById('scalingDemoChart').getContext('2d');
+        const runBtn = document.getElementById('runScalingDemo');
+        const scalingToggle = document.getElementById('scalingToggle');
+        const theta0ValEl = document.getElementById('theta0Val');
+        const theta1ValEl = document.getElementById('theta1Val');
+        const theta2ValEl = document.getElementById('theta2Val');
+        const mseValEl = document.getElementById('mseVal');
+
+        let scalingChart;
+        let animationFrameId;
+        let rawData = [];
+
+        const generateRawData = () => {
+            rawData = [];
+            for (let i = 0; i < 50; i++) {
+                const size = 1000 + Math.random() * 2000;
+                const age = Math.random() * 20;
+                const noise = (Math.random() - 0.5) * 50000;
+                const price = 50000 + 150 * size - 2000 * age + noise;
+                rawData.push({ size, age, price });
+            }
+        };
+
+        const createScalingChart = (data, title) => {
+            if (scalingChart) scalingChart.destroy();
+            
+            scalingChart = new Chart(scalingCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Data Points',
+                        data: data.map(p => ({x: p.size, y: p.price, z: p.age})),
+                        backgroundColor: 'rgba(37, 99, 235, 0.7)',
+                    }, {
+                        label: 'Model Plane',
+                        data: [],
+                        type: 'scatter',
+                        backgroundColor: 'rgba(239, 68, 68, 0.5)',
+                        pointRadius: 2,
+                        pointStyle: 'rect'
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: title },
+                        chartJsPlugin3d: { enabled: true, xRotation: 15, yRotation: -25, zPadding: 0 }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Size (sq ft)' } },
+                        y: { title: { display: true, text: 'Price ($)' } },
+                        z: { type: 'linear', position: 'bottom', title: { display: true, text: 'Age (years)' } }
+                    }
+                }
+            });
+        };
+        
+        const runGradientDescent = () => {
+             if (animationFrameId) cancelAnimationFrame(animationFrameId);
+             runBtn.disabled = true;
+
+            const useScaling = scalingToggle.checked;
+            let currentData = rawData;
+            let means = { size: 0, age: 0, price: 0 };
+            let stds = { size: 1, age: 1, price: 1 };
+
+            if (useScaling) {
+                const n = rawData.length;
+                means.size = rawData.reduce((sum, p) => sum + p.size, 0) / n;
+                means.age = rawData.reduce((sum, p) => sum + p.age, 0) / n;
+                means.price = rawData.reduce((sum, p) => sum + p.price, 0) / n;
+                
+                stds.size = Math.sqrt(rawData.reduce((sum, p) => sum + Math.pow(p.size - means.size, 2), 0) / n) || 1;
+                stds.age = Math.sqrt(rawData.reduce((sum, p) => sum + Math.pow(p.age - means.age, 2), 0) / n) || 1;
+                stds.price = Math.sqrt(rawData.reduce((sum, p) => sum + Math.pow(p.price - means.price, 2), 0) / n) || 1;
+
+                currentData = rawData.map(p => ({
+                    size: (p.size - means.size) / stds.size,
+                    age: (p.age - means.age) / stds.age,
+                    price: (p.price - means.price) / stds.price
+                }));
+            }
+            
+            let theta = [0, 0, 0];
+            // FIX: Use a much smaller learning rate for unscaled data to prevent explosion.
+            const learningRate = useScaling ? 0.1 : 0.00000001;
+            const iterations = 100;
+            let iter = 0;
+
+            const animate = () => {
+                if (iter >= iterations) {
+                    runBtn.disabled = false;
+                    return;
+                }
+
+                let grad = [0, 0, 0];
+                let mse = 0;
+                const n = currentData.length;
+                
+                currentData.forEach(p => {
+                    const pred = theta[0] + theta[1] * p.size + theta[2] * p.age;
+                    const error = pred - p.price;
+                    grad[0] += error;
+                    grad[1] += error * p.size;
+                    grad[2] += error * p.age;
+                    mse += error * error;
+                });
+
+                theta[0] -= (learningRate / n) * grad[0];
+                theta[1] -= (learningRate / n) * grad[1];
+                theta[2] -= (learningRate / n) * grad[2];
+                
+                const currentMse = mse / n;
+
+                // FIX: Add a check for numerical overflow
+                if (!isFinite(currentMse)) {
+                    mseValEl.textContent = "Exploded!";
+                    theta0ValEl.textContent = "NaN";
+                    theta1ValEl.textContent = "NaN";
+                    theta2ValEl.textContent = "NaN";
+                    runBtn.disabled = false;
+                    cancelAnimationFrame(animationFrameId);
+                    return;
+                }
+
+                const unscaledMse = useScaling ? currentMse * Math.pow(stds.price, 2) : currentMse;
+                mseValEl.textContent = unscaledMse.toFixed(2);
+                
+                let finalTheta;
+                if(useScaling) {
+                    const t1_unscaled = theta[1] * stds.price / stds.size;
+                    const t2_unscaled = theta[2] * stds.price / stds.age;
+                    const t0_unscaled = theta[0] * stds.price + means.price - (t1_unscaled * means.size + t2_unscaled * means.age);
+                    finalTheta = [t0_unscaled, t1_unscaled, t2_unscaled];
+                } else {
+                    finalTheta = theta;
+                }
+                
+                theta0ValEl.textContent = finalTheta[0].toFixed(2);
+                theta1ValEl.textContent = finalTheta[1].toFixed(2);
+                theta2ValEl.textContent = finalTheta[2].toFixed(2);
+
+                const planePoints = [];
+                const xRange = {min: 1000, max: 3000};
+                const zRange = {min: 0, max: 20};
+                for(let x = xRange.min; x <= xRange.max; x+= 200) {
+                    for (let z = zRange.min; z <= zRange.max; z+= 2) {
+                        const y = finalTheta[0] + finalTheta[1] * x + finalTheta[2] * z;
+                        planePoints.push({x, y, z});
+                    }
+                }
+                scalingChart.data.datasets[1].data = planePoints;
+                scalingChart.update('none');
+
+                iter++;
+                animationFrameId = requestAnimationFrame(animate);
+            };
+            animate();
+        };
+
+        generateRawData();
+        createScalingChart(rawData, "Unscaled Feature Space");
+        
+        scalingToggle.addEventListener('change', () => {
+            const useScaling = scalingToggle.checked;
+            document.querySelector('.dot').style.transform = useScaling ? 'translateX(1.5rem)' : 'translateX(0)';
+            const toggleBg = scalingToggle.parentElement.querySelector('.block');
+            toggleBg.classList.toggle('bg-gray-600', !useScaling);
+            toggleBg.classList.toggle('bg-blue-600', useScaling);
+        });
+
+        runBtn.addEventListener('click', runGradientDescent);
+    });
+    </script>
+</body>
+</html>

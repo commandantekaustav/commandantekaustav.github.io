@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Guide: Polynomial Regression & Regularization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .card { background-color: white; border-radius: 1rem; padding: 2rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); display: flex; flex-direction: column; }
+        .math-box { background-color: #f3f4f6; border-left: 4px solid #4b5563; padding: 1rem 1.5rem; border-radius: 0.5rem; font-family: 'ui-monospace', 'SFMono-Regular', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 1rem; overflow-x: auto; color: #1f293b; }
+        .highlight { background: linear-gradient(to right, #ef4444, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; }
+        .action-button { background-color: #4f46e5; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; text-align: center; }
+        .action-button:hover { background-color: #4338ca; }
+        .secondary-button { background-color: #e0e7ff; color: #4338ca; }
+        .secondary-button:hover { background-color: #c7d2fe; }
+        .fit-label { padding: 0.5rem 1rem; border-radius: 9999px; font-weight: 600; text-align: center; transition: all 0.3s; }
+        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%236b7280%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3D%22evenodd%22%20/%3E%3C/svg%3E'); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; }
+        .text-l1 { color: #059669; } .bg-l1 { background-color: #d1fae5; }
+        .text-l2 { color: #0369a1; } .bg-l2 { background-color: #e0f2fe; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2">
+                Advanced Regression: <span class="highlight">Overfitting & Regularization</span>
+            </h1>
+            <p class="text-lg text-gray-500">Taming overly complex models to make them smarter.</p>
+        </header>
+
+        <div class="grid grid-cols-1 gap-8">
+            
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">The Problem: When Models "Memorize" Instead of "Learn"</h2>
+                <p class="mb-4 text-gray-600">A standard Linear Regression model is great, but it can only draw straight lines. What if the data has a curve? We can use <strong>Polynomial Regression</strong>, which allows our model to fit complex curves by adding powers of our features (like <code>x²</code>, <code>x³</code>, etc.).</p>
+                <p class="mb-4 text-gray-600">But this power comes with a great danger: <strong>Overfitting</strong>. An overly complex model (one with too many high-power features) will contort itself to pass through every single data point perfectly. It "memorizes" the training data, including its random noise, but fails miserably when it sees new, unseen data. It hasn't learned the general trend, only the specific quirks of the data it was shown.</p>
+                <p class="mb-4 text-gray-600"><strong>Analogy: The Over-Eager Student.</strong> An overfit model is like a student who memorizes the answers to a practice test perfectly (<code>MSE = 0</code>) but doesn't understand the underlying concepts. When they get the real exam with slightly different questions, they fail completely. Our goal is to encourage the student to learn the concepts, not just the answers.</p>
+            </div>
+
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">Interactive Demo: Create Overfitting and Fix It!</h2>
+                <p class="mb-6 text-gray-600">Your goal is to see overfitting in action. Start by increasing the <strong class="text-red-700">Model Complexity</strong> slider. You'll see the line get wild and "wiggly" as it tries to hit every point. This is a classic <strong class="text-red-700">Overfit</strong> model. Then, use the <strong class="text-l2">L2 (Ridge)</strong> and <strong class="text-l1">L1 (Lasso)</strong> sliders to apply a penalty. Watch how even a small penalty can "tame" the wild curve, making it a much smoother and more sensible <strong class="text-green-700">Good Fit</strong>.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 h-[450px] relative rounded-lg bg-gray-50 p-2">
+                        <canvas id="regularizationChart"></canvas>
+                    </div>
+                    <div class="flex flex-col justify-center space-y-4">
+                        <div id="fitQualityLabel" class="fit-label">Model Quality</div>
+                        <div>
+                            <label for="polyDegreeSlider" class="font-semibold text-red-700">Model Complexity (Polynomial Degree): <span id="polyDegreeValue" class="font-bold">1</span></label>
+                            <input type="range" id="polyDegreeSlider" min="1" max="10" step="1" value="1" class="w-full h-2 bg-red-100 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <div>
+                            <label for="l2Select" class="font-semibold text-l2">L2 (Ridge) Penalty (λ):</label>
+                             <select id="l2Select" class="w-full p-2 border rounded-lg bg-l2 focus:outline-none focus:ring-2 focus:ring-cyan-400"></select>
+                        </div>
+                        <div>
+                            <label for="l1Select" class="font-semibold text-l1">L1 (Lasso) Penalty (λ):</label>
+                            <select id="l1Select" class="w-full p-2 border rounded-lg bg-l1 focus:outline-none focus:ring-2 focus:ring-emerald-400"></select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                             <button id="findBestFitBtn" class="action-button">Find Best Fit</button>
+                             <button id="resetRegBtn" class="action-button secondary-button">New Data</button>
+                        </div>
+                         <div id="coeffDisplay" class="text-xs p-3 border rounded-lg bg-gray-50 h-32 overflow-y-auto"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">The Solution: Regularization (Adding a Penalty)</h2>
+                <p class="mb-4 text-gray-600">Regularization is the technique we use to fight overfitting. The core idea is to modify the cost function. We still want to minimize the error (MSE), but we add a <strong>penalty term</strong> that gets bigger as the model's coefficients (the <code>θ</code> values) get larger. This forces the model to keep its coefficients small, which in turn prevents the curve from becoming too "wiggly" and complex.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
+                     <div>
+                        <h3 class="text-xl font-bold mb-2 text-l2">L2 Regularization (Ridge)</h3>
+                        <p class="mb-4 text-sm text-gray-600"><strong>Analogy: The Elastic Leash.</strong> Ridge regression is like putting an elastic leash on each coefficient, tying it to zero. The coefficient can still move around to help reduce error, but the leash pulls it back, preventing it from running too far. It adds a penalty proportional to the <strong>square</strong> of the coefficients' magnitude. This is great at shrinking all coefficients and preventing any single one from becoming too dominant.</p>
+                        <p class="mb-2 font-semibold">Ridge Cost Function</p>
+                        <div class="math-box text-sm">J_ridge = MSE + <span class="text-l2">λ * Σ θⱼ²</span></div>
+                        <ul class="mt-4 space-y-2 text-xs">
+                            <li><strong><code>J_ridge</code></strong>: The total cost the model tries to minimize.</li>
+                            <li><strong><code>MSE</code></strong>: The standard Mean Squared Error, measuring how far the line is from the data points.</li>
+                            <li><strong class="text-l2"><code>λ</code> (lambda)</strong>: The regularization parameter. This is the "strength" of the leash. A value of 0 means no leash; a large value means a very short, strong leash.</li>
+                            <li><strong class="text-l2"><code>Σ θⱼ²</code></strong>: The penalty term. It means "sum up the squares of all the coefficients". Squaring the values ensures the penalty is always positive and punishes large coefficients much more than small ones.</li>
+                        </ul>
+                     </div>
+                      <div>
+                        <h3 class="text-xl font-bold mb-2 text-l1">L1 Regularization (Lasso)</h3>
+                        <p class="mb-4 text-sm text-gray-600"><strong>Analogy: The Strict Budget.</strong> Lasso regression is like giving your model a fixed budget for the sum of all its coefficients. To minimize the cost, the model is forced to spend its budget wisely. It discovers that the best strategy is to eliminate the coefficients of less important features entirely (setting them to zero) and spending the budget on the most important ones. It adds a penalty proportional to the <strong>absolute value</strong> of the coefficients. This makes it a powerful tool for <strong>automatic feature selection</strong>.</p>
+                        <p class="mb-2 font-semibold">Lasso Cost Function</p>
+                        <div class="math-box text-sm">J_lasso = MSE + <span class="text-l1">λ * Σ |θⱼ|</span></div>
+                        <ul class="mt-4 space-y-2 text-xs">
+                            <li><strong><code>J_lasso</code></strong>: The total cost for the Lasso model.</li>
+                            <li><strong><code>MSE</code></strong>: The same error term as before.</li>
+                            <li><strong class="text-l1"><code>λ</code> (lambda)</strong>: The strength of the "budget enforcement". A higher value means a tighter budget.</li>
+                            <li><strong class="text-l1"><code>Σ |θⱼ|</code></strong>: The penalty term. It means "sum up the absolute values of all the coefficients". This penalty is what encourages coefficients to become exactly zero.</li>
+                        </ul>
+                     </div>
+                     <div>
+                        <h3 class="text-xl font-bold mb-2">Elastic Net</h3>
+                        <p class="mb-4 text-sm text-gray-600"><strong>Analogy: The Best of Both Worlds.</strong> Elastic Net simply combines the L1 and L2 penalties. It has both the "leash" and the "budget". This is useful when you have many correlated features, as Lasso might randomly pick one and discard the others, while Elastic Net tends to group and shrink them together, giving a more stable result.</p>
+                        <p class="mb-2 font-semibold">Elastic Net Cost Function</p>
+                        <div class="math-box text-sm">J_elastic = MSE + <span class="text-l1">λ₁ * Σ |θⱼ|</span> + <span class="text-l2">λ₂ * Σ θⱼ²</span></div>
+                        <ul class="mt-4 space-y-2 text-xs">
+                             <li><strong><code>J_elastic</code></strong>: The combined total cost.</li>
+                             <li><strong><code>MSE</code></strong>: The standard error term.</li>
+                             <li><strong class="text-l1"><code>λ₁</code></strong>: The strength of the L1 (Lasso) part of the penalty.</li>
+                             <li><strong class="text-l2"><code>λ₂</code></strong>: The strength of the L2 (Ridge) part of the penalty.</li>
+                        </ul>
+                     </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const getElem = id => document.getElementById(id);
+
+        // --- REGULARIZATION DEMO ---
+        const regElements = {
+            degreeSlider: getElem('polyDegreeSlider'), l1Select: getElem('l1Select'), l2Select: getElem('l2Select'),
+            degreeEl: getElem('polyDegreeValue'), coeffEl: getElem('coeffDisplay'),
+            resetBtn: getElem('resetRegBtn'), findBestFitBtn: getElem('findBestFitBtn'),
+            fitQualityLabel: getElem('fitQualityLabel'), regCtx: getElem('regularizationChart').getContext('2d')
+        };
+        // FIX: Add more practical, logarithmically spaced options
+        const L_OPTIONS = [0, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100, 300, 1000, 3000, 10000];
+        let regChart, polyData = [];
+
+        const solvePolynomialRegression = (data, degree, l1, l2) => {
+            try {
+                if (data.length <= degree) return {error: true, coeffs: []};
+                
+                const X_unscaled = data.map(p => Array.from({length: degree + 1}, (_, i) => i === 0 ? 1 : Math.pow(p.x, i)));
+                const y_unscaled = data.map(p => p.y);
+                
+                const xMeans = Array.from({length: degree + 1}, (_, j) => j > 0 ? math.mean(X_unscaled.map(row => row[j])) : 0);
+                const xStdDevs = Array.from({length: degree + 1}, (_, j) => j > 0 ? math.std(X_unscaled.map(row => row[j])) || 1 : 1);
+                
+                const X = X_unscaled.map(row => row.map((val, j) => (j > 0) ? (val - xMeans[j]) / xStdDevs[j] : 1));
+                const yMean = math.mean(y_unscaled); 
+                const yStdDev = math.std(y_unscaled) || 1;
+                const y = y_unscaled.map(val => (val - yMean) / yStdDev);
+
+                let coeffs_scaled = Array(degree + 1).fill(0);
+                const learningRate = 0.01;
+                const iterations = 300;
+
+                for (let iter = 0; iter < iterations; iter++) {
+                    const predictions = math.multiply(X, coeffs_scaled);
+                    const errors = math.subtract(predictions, y);
+                    const gradients = math.multiply(math.transpose(X), errors).map(g => g / data.length);
+                    
+                    for (let j = 1; j <= degree; j++) {
+                        const l2_grad = l2 * coeffs_scaled[j];
+                        const l1_grad = l1 * Math.sign(coeffs_scaled[j]);
+                        gradients[j] += l2_grad + l1_grad;
+                    }
+                    
+                    coeffs_scaled = math.subtract(coeffs_scaled, math.multiply(learningRate, gradients));
+                }
+
+                let finalCoeffs = Array(degree + 1).fill(0);
+                let intercept = coeffs_scaled[0] * yStdDev + yMean;
+                for(let j = 1; j <= degree; j++) {
+                    intercept -= (coeffs_scaled[j] * yStdDev / xStdDevs[j]) * xMeans[j];
+                }
+                finalCoeffs[0] = intercept;
+                for(let j = 1; j <= degree; j++) {
+                    finalCoeffs[j] = coeffs_scaled[j] * yStdDev / xStdDevs[j];
+                }
+                
+                return { coeffs: finalCoeffs };
+            } catch (e) { console.error(e); return { error: true, coeffs: [] }; }
+        };
+
+        const updateRegularizationChart = () => {
+            const degree = parseInt(regElements.degreeSlider.value);
+            const l1 = parseFloat(regElements.l1Select.value); 
+            const l2 = parseFloat(regElements.l2Select.value);
+            regElements.degreeEl.textContent = degree;
+            
+            const result = solvePolynomialRegression(polyData, degree, l1, l2);
+            if (result.error || !result.coeffs || result.coeffs.some(isNaN)) { 
+                regElements.coeffEl.innerHTML = `<span class='text-red-500 font-semibold'>Unstable solution. Try a lower complexity or higher penalty.</span>`; 
+                return;
+            }
+            const { coeffs } = result;
+
+            regElements.coeffEl.innerHTML = coeffs.map((c, i) => `θ${i}: <b>${c.toExponential(2)}</b>`).join('<br>');
+            
+            const lineData = [];
+            for (let x = 0; x <= 100; x += 1) {
+                let y_val = 0;
+                for(let i=0; i <= degree; i++) {
+                    y_val += coeffs[i] * Math.pow(x, i);
+                }
+                lineData.push({x, y: y_val});
+            }
+            regChart.data.datasets[1].data = lineData;
+            
+            const mse = polyData.reduce((sum, p) => {
+                let pred_y = 0;
+                for(let i=0; i <= degree; i++) { pred_y += coeffs[i] * Math.pow(p.x, i); }
+                return sum + Math.pow(pred_y - p.y, 2);
+            }, 0) / polyData.length;
+
+            updateFitQualityLabel(degree, l1, l2, mse);
+            regChart.update('none');
+        };
+
+        const updateFitQualityLabel = (degree, l1, l2, mse) => {
+            const label = regElements.fitQualityLabel; let text, style;
+            const isRegularized = l1 > 0 || l2 > 0;
+            if (degree <= 2 && !isRegularized) { text = 'Underfitting'; style = 'bg-blue-100 text-blue-700'; } 
+            else if (degree >= 7 && !isRegularized) { text = 'Overfitting'; style = 'bg-red-100 text-red-700'; } 
+            else { text = 'Good Fit'; style = 'bg-green-100 text-green-700'; }
+            label.textContent = text; label.className = `fit-label ${style}`;
+        };
+
+        const findAndSetBestFit = () => {
+            let bestScore = Infinity, bestParams = {degree: 1, l2: 100};
+            // This is a simplified search. A real-world scenario would test more combinations.
+            for (let d = 2; d <= 5; d++) {
+                for (const l2_val of [0.01, 0.1, 1, 10, 100]) {
+                    const result = solvePolynomialRegression(polyData, d, 0, l2_val);
+                    if (!result.error && result.coeffs.length > 0) {
+                        const { coeffs } = result;
+                        const mse = polyData.reduce((s,p) => {
+                           let pred_y = 0;
+                           for(let i=0; i <= d; i++) { pred_y += coeffs[i] * Math.pow(p.x, i); }
+                           return s+Math.pow(pred_y-p.y,2);
+                        },0)/polyData.length;
+                        if (!isFinite(mse) || mse <= 0) continue;
+                        // Use Akaike Information Criterion (AIC) to balance fit and complexity
+                        const k = d+1; 
+                        const aic = 2*k + polyData.length * Math.log(mse);
+                        if (aic < bestScore) { 
+                            bestScore = aic; 
+                            bestParams = {degree: d, l2: l2_val}; 
+                        }
+                    }
+                }
+            }
+            // FIX: Correctly set the L1 and L2 sliders based on the best found parameters.
+            regElements.degreeSlider.value = bestParams.degree; 
+            regElements.l1Select.value = '0'; // We only searched for L2
+            regElements.l2Select.value = bestParams.l2;
+            updateRegularizationChart();
+        };
+
+        const createRegularizationChart = () => {
+            regElements.l1Select.innerHTML = L_OPTIONS.map(v => `<option value="${v}">${v === 0 ? "0 (None)" : v}</option>`).join('');
+            regElements.l2Select.innerHTML = L_OPTIONS.map(v => `<option value="${v}">${v === 0 ? "0 (None)" : v}</option>`).join('');
+            regChart = new Chart(regElements.regCtx, {
+                data: { datasets: [{ type: 'scatter', label: 'Data', data: [], backgroundColor: '#3b82f6', pointRadius: 5 }, { type: 'line', label: 'Model', data: [], borderColor: '#ef4444', borderWidth: 3, tension: 0.1, pointRadius: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { min: 0, max: 100 }, y: { min: -100, max: 400 } }, plugins: { legend: { display: false } } }
+            });
+            regElements.degreeSlider.addEventListener('input', updateRegularizationChart);
+            regElements.l1Select.addEventListener('change', updateRegularizationChart);
+            regElements.l2Select.addEventListener('change', updateRegularizationChart);
+            regElements.resetBtn.addEventListener('click', generateNewPolynomialData);
+            regElements.findBestFitBtn.addEventListener('click', findAndSetBestFit);
+        };
+
+        const generateNewPolynomialData = () => {
+            polyData.length = 0; 
+            const trueFunc = x => 0.001*Math.pow(x-50, 3) + 0.1*Math.pow(x-50,2) - 5*(x-50)+150;
+            for (let i = 0; i < 30; i++) { 
+                const x = Math.random()*100; 
+                const y = trueFunc(x)+(Math.random()-0.5)*80; 
+                polyData.push({x,y}); 
+            }
+            regChart.data.datasets[0].data = polyData;
+            regElements.degreeSlider.value = 1; 
+            regElements.l1Select.value = '0'; 
+            regElements.l2Select.value = '0';
+            updateRegularizationChart();
+        };
+
+        // --- INITIALIZATION ---
+        createRegularizationChart();
+        generateNewPolynomialData();
+    });
+    </script>
+</body>
+</html>

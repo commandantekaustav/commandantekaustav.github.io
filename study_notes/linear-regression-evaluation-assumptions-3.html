@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Regression: Evaluation & Assumptions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .card { background-color: white; border-radius: 1rem; padding: 2rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); display: flex; flex-direction: column; }
+        .math-box { background-color: #f1f5f9; border-left: 4px solid #16a34a; padding: 1rem 1.5rem; border-radius: 0.5rem; font-family: 'ui-monospace', 'SFMono-Regular', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 1rem; overflow-x: auto; color: #1e293b; }
+        .highlight { background: linear-gradient(to right, #16a34a, #65a30d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; }
+        .text-r-squared { color: #15803d; }
+        .text-mae { color: #0284c7; }
+        .text-rmse { color: #c026d3; }
+        .action-button { background-color: #4f46e5; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; text-align: center; }
+        .action-button:hover { background-color: #4338ca; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2">
+                Is My Model Any Good? <span class="highlight">Evaluation & Assumptions</span>
+            </h1>
+            <p class="text-lg text-gray-500">The final and most important step in the Linear Regression workflow.</p>
+        </header>
+
+        <div class="grid grid-cols-1 gap-8">
+            
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">Interactive Demo: Understanding R-Squared (R²)</h2>
+                <p class="mb-4 text-gray-600"><strong>R-Squared</strong> is the most important metric for regression. It tells you how much better your line is than just guessing the average value. It measures the <strong>proportion of the variance in the outcome that your model can explain</strong>. In this demo, the <span class="text-blue-500">blue line</span> is your model, and the <span class="text-orange-500">orange line</span> is the simple average. The R² value increases as your blue line's errors become smaller than the orange line's errors.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- FIX: Corrected Tailwind CSS class from lg-col-span-2 to lg:col-span-2 -->
+                    <div class="lg:col-span-2 h-[400px] relative rounded-lg bg-gray-50 p-2 cursor-grab" id="rSquaredChartContainer">
+                        <canvas id="rSquaredChart"></canvas>
+                    </div>
+                    <div class="flex flex-col justify-center space-y-4">
+                        <div class="card p-4 bg-blue-50">
+                            <h3 class="font-bold text-lg mb-2 text-blue-700">Your Model's Error (SSE)</h3>
+                            <p id="sseValue" class="font-mono text-xl">0.00</p>
+                        </div>
+                        <div class="card p-4 bg-orange-50">
+                            <h3 class="font-bold text-lg mb-2 text-orange-700">Baseline Error (SST)</h3>
+                            <p id="sstValue" class="font-mono text-xl">0.00</p>
+                        </div>
+                        <div class="card p-4 bg-green-50">
+                            <h3 class="font-bold text-lg mb-2 text-green-700">R-Squared</h3>
+                            <p id="rSquaredValue" class="font-mono text-3xl font-bold">0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">The Mathematics of Evaluation</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                     <div class="p-4 rounded-lg bg-green-50 border border-green-200">
+                        <h3 class="text-xl font-bold mb-2 text-r-squared">R-Squared (R²)</h3>
+                        <div class="math-box text-sm">R² = 1 - (SSE / SST)</div>
+                        <ul class="mt-4 space-y-2 text-xs">
+                           <li><strong><code>SSE</code></strong> (Sum of Squared Errors): <code>Σ(yᵢ - ŷᵢ)²</code>. The total squared error from your model's line.</li>
+                           <li><strong><code>SST</code></strong> (Total Sum of Squares): <code>Σ(yᵢ - ȳ)²</code>. The total squared error if you just guessed the average every time.</li>
+                        </ul>
+                     </div>
+                      <div class="p-4 rounded-lg bg-sky-50 border border-sky-200">
+                        <h3 class="text-xl font-bold mb-2 text-mae">Mean Absolute Error (MAE)</h3>
+                        <div class="math-box text-sm">MAE = (1/n) * Σ |yᵢ - ŷᵢ|</div>
+                        <ul class="mt-4 space-y-2 text-xs">
+                           <li><strong><code>n</code></strong>: The total number of data points.</li>
+                           <li><strong><code>|yᵢ - ŷᵢ|</code></strong>: The absolute error for a single point.</li>
+                        </ul>
+                     </div>
+                     <div class="p-4 rounded-lg bg-fuchsia-50 border border-fuchsia-200">
+                        <h3 class="text-xl font-bold mb-2 text-rmse">Root Mean Squared Error (RMSE)</h3>
+                         <div class="math-box text-sm">RMSE = √[MSE]</div>
+                         <ul class="mt-4 space-y-2 text-xs">
+                           <li><strong><code>√[...]</code></strong>: The square root of the Mean Squared Error. This brings the error back into the original units of your target variable.</li>
+                        </ul>
+                     </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-4">Interactive Demo: The Assumptions of Linear Regression</h2>
+                <p class="mb-4 text-gray-600">A linear regression model is only reliable if the data follows some basic rules. In this demo, you can fit a model to the data in the top chart. The bottom chart will instantly show you the **Residual Plot** (Predicted Values vs. Errors). Try to create data that violates the assumptions!</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="h-[300px] relative rounded-lg bg-gray-50 p-2 cursor-crosshair" id="main-chart-container">
+                             <canvas id="mainModelChart"></canvas>
+                        </div>
+                        <div class="h-[200px] relative rounded-lg bg-gray-50 p-2">
+                             <canvas id="residualChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="flex flex-col justify-center space-y-4">
+                        <h3 class="text-xl font-bold">Assumptions Checklist</h3>
+                        <p id="linearity-check" class="text-gray-500"><strong>1. Linearity:</strong> Is there a clear curve or pattern in the residuals?</p>
+                        <p id="homoscedasticity-check" class="text-gray-500"><strong>2. Homoscedasticity:</strong> Does the scatter of residuals change as the predicted value increases (fan shape)?</p>
+                        <button id="resetAssumptionsBtn" class="action-button">Reset Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- R-SQUARED DEMO ---
+        const rSquaredCtx = document.getElementById('rSquaredChart').getContext('2d');
+        const sseValueEl = document.getElementById('sseValue');
+        const sstValueEl = document.getElementById('sstValue');
+        const rSquaredValueEl = document.getElementById('rSquaredValue');
+        let rSquaredChart;
+        let rSquaredData = [];
+        let draggablePointIndex = null;
+
+        const calculateR2Metrics = () => {
+            if (rSquaredData.length < 2) return { sse: 0, sst: 0, r2: 0, slope: 0, intercept: 0, meanY: 0 };
+            const n = rSquaredData.length;
+            const sumX = rSquaredData.reduce((s, p) => s + p.x, 0);
+            const sumY = rSquaredData.reduce((s, p) => s + p.y, 0);
+            const sumXY = rSquaredData.reduce((s, p) => s + p.x * p.y, 0);
+            const sumXX = rSquaredData.reduce((s, p) => s + p.x * p.x, 0);
+            const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+            const intercept = (sumY - slope * sumX) / n;
+            const meanY = sumY / n;
+
+            let sse = 0, sst = 0;
+            rSquaredData.forEach(p => {
+                const predY = slope * p.x + intercept;
+                sse += Math.pow(p.y - predY, 2);
+                sst += Math.pow(p.y - meanY, 2);
+            });
+            
+            const r2 = sst > 0 ? 1 - (sse / sst) : 1;
+            
+            sseValueEl.textContent = sse.toFixed(2);
+            sstValueEl.textContent = sst.toFixed(2);
+            rSquaredValueEl.textContent = r2.toFixed(3);
+
+            return { slope, intercept, meanY };
+        };
+
+        const updateR2Chart = () => {
+            const { slope, intercept, meanY } = calculateR2Metrics();
+            rSquaredChart.data.datasets[0].data = rSquaredData;
+            rSquaredChart.data.datasets[1].data = [{x: 0, y: intercept}, {x: 10, y: slope * 10 + intercept}];
+            rSquaredChart.options.plugins.annotation.annotations.meanLine.value = meanY;
+            rSquaredChart.update();
+        };
+
+        const createR2Chart = () => {
+            rSquaredData = [{x:1, y:2}, {x:2, y:4}, {x:3, y:3}, {x:4, y:6}, {x:5, y:5}, {x:6, y:8}, {x:7, y:7}];
+            rSquaredChart = new Chart(rSquaredCtx, {
+                type: 'scatter',
+                data: { datasets: [
+                    { label: 'Data', data: [], backgroundColor: 'rgba(37, 99, 235, 0.7)', pointRadius: 6, hoverRadius: 8 },
+                    { type: 'line', label: 'Model Fit', data: [], borderColor: '#2563eb', borderWidth: 3 }
+                ]},
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { x: { min: 0, max: 10 }, y: { min: 0, max: 10 } },
+                    plugins: {
+                        legend: { display: false },
+                        annotation: {
+                            annotations: {
+                                meanLine: {
+                                    type: 'line', scaleID: 'y', value: 5, borderColor: '#f97316', borderWidth: 2, borderDash: [6, 6],
+                                    label: { content: 'Average', enabled: true, position: 'start', backgroundColor: 'rgba(255,255,255,0.7)' }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            updateR2Chart();
+        };
+        createR2Chart();
+        
+        const r2Canvas = document.getElementById('rSquaredChart');
+        r2Canvas.addEventListener('mousedown', (e) => {
+            const points = rSquaredChart.getElementsAtEventForMode(e, 'point', { intersect: true }, true);
+            if (points.length) {
+                draggablePointIndex = points[0].index;
+                r2Canvas.style.cursor = 'grabbing';
+            }
+        });
+        r2Canvas.addEventListener('mousemove', (e) => {
+            if (draggablePointIndex !== null) {
+                const rect = r2Canvas.getBoundingClientRect();
+                const x = rSquaredChart.scales.x.getValueForPixel(e.clientX - rect.left);
+                const y = rSquaredChart.scales.y.getValueForPixel(e.clientY - rect.top);
+                rSquaredData[draggablePointIndex].x = Math.max(0, Math.min(10, x));
+                rSquaredData[draggablePointIndex].y = Math.max(0, Math.min(10, y));
+                updateR2Chart();
+            }
+        });
+        r2Canvas.addEventListener('mouseup', () => {
+            draggablePointIndex = null;
+            r2Canvas.style.cursor = 'grab';
+        });
+         r2Canvas.addEventListener('mouseleave', () => {
+            draggablePointIndex = null;
+            r2Canvas.style.cursor = 'grab';
+        });
+
+        // --- ASSUMPTIONS DEMO ---
+        const mainModelCtx = document.getElementById('mainModelChart').getContext('2d');
+        const residualCtx = document.getElementById('residualChart').getContext('2d');
+        const resetAssumptionsBtn = document.getElementById('resetAssumptionsBtn');
+        const linearityCheckEl = document.getElementById('linearity-check');
+        const homoscedasticityCheckEl = document.getElementById('homoscedasticity-check');
+        let mainModelChart, residualChart;
+        let assumptionData = [];
+
+        const updateAssumptionCharts = () => {
+            if (assumptionData.length < 2) {
+                residualChart.data.datasets[0].data = [];
+                residualChart.update();
+                mainModelChart.data.datasets[1].data = [];
+                mainModelChart.update();
+                return;
+            };
+
+            const n = assumptionData.length;
+            const sumX = assumptionData.reduce((s, p) => s + p.x, 0);
+            const sumY = assumptionData.reduce((s, p) => s + p.y, 0);
+            const sumXY = assumptionData.reduce((s, p) => s + p.x * p.y, 0);
+            const sumXX = assumptionData.reduce((s, p) => s + p.x * p.x, 0);
+            const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+            const intercept = (sumY - slope * sumX) / n;
+
+            mainModelChart.data.datasets[1].data = [{x: 0, y: intercept}, {x: 10, y: slope * 10 + intercept}];
+            mainModelChart.update();
+
+            const residuals = assumptionData.map(p => {
+                const predY = slope * p.x + intercept;
+                return { x: predY, y: p.y - predY };
+            });
+            residualChart.data.datasets[0].data = residuals;
+            residualChart.update();
+
+            const firstHalfResiduals = residuals.filter(r => r.x < (slope * 5 + intercept));
+            const secondHalfResiduals = residuals.filter(r => r.x >= (slope * 5 + intercept));
+            if (firstHalfResiduals.length > 2 && secondHalfResiduals.length > 2) {
+                const firstVar = math.variance(firstHalfResiduals.map(r => r.y));
+                const secondVar = math.variance(secondHalfResiduals.map(r => r.y));
+                if (secondVar > firstVar * 2.5 || firstVar > secondVar * 2.5) {
+                    homoscedasticityCheckEl.innerHTML = '<strong>2. Homoscedasticity:</strong> <span class="text-red-600">Violation?</span> The scatter of errors seems to be changing (fan shape).';
+                } else {
+                    homoscedasticityCheckEl.innerHTML = '<strong>2. Homoscedasticity:</strong> <span class="text-green-600">Looks OK.</span> The scatter of errors is roughly constant.';
+                }
+            }
+        };
+
+        const createAssumptionCharts = () => {
+            mainModelChart = new Chart(mainModelCtx, {
+                type: 'scatter',
+                data: { datasets: [
+                    { label: 'Data', data: [], backgroundColor: 'rgba(37, 99, 235, 0.7)', pointRadius: 6 },
+                    { type: 'line', label: 'Model Fit', data: [], borderColor: '#ef4444', borderWidth: 3 }
+                ]},
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { min: 0, max: 10 }, y: { min: 0, max: 10 } }, plugins: { legend: { display: false }, title: { display: true, text: 'Model Fit' } } }
+            });
+
+            residualChart = new Chart(residualCtx, {
+                type: 'scatter',
+                data: { datasets: [{ label: 'Residuals', data: [], backgroundColor: 'rgba(100, 116, 139, 0.7)', pointRadius: 6 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { title: { display: true, text: 'Predicted Value' } }, y: { title: { display: true, text: 'Residual (Error)' } } }, plugins: { legend: { display: false }, title: { display: true, text: 'Residual Plot' } } }
+            });
+        };
+        
+        const resetAssumptions = () => {
+            assumptionData = [];
+            for(let i=0; i<20; i++) {
+                const x = Math.random() * 10;
+                const y = 0.5 * x + 2 + (Math.random() - 0.5) * 2;
+                assumptionData.push({x, y});
+            }
+            mainModelChart.data.datasets[0].data = assumptionData;
+            updateAssumptionCharts();
+        };
+        
+        createAssumptionCharts();
+        resetAssumptions();
+
+        document.getElementById('main-chart-container').onclick = (e) => {
+            const rect = mainModelCtx.canvas.getBoundingClientRect();
+            const x = mainModelChart.scales.x.getValueForPixel(e.clientX - rect.left);
+            const y = mainModelChart.scales.y.getValueForPixel(e.clientY - rect.top);
+            if (x >= 0 && x <= 10 && y >= 0 && y <= 10) {
+                assumptionData.push({ x, y });
+                mainModelChart.data.datasets[0].data = assumptionData;
+                updateAssumptionCharts();
+            }
+        };
+        resetAssumptionsBtn.addEventListener('click', resetAssumptions);
+    });
+    </script>
+</body>
+</html>
