@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistic Regression from Scratch (Core Python)</title>
+    <!-- Load Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use the Inter font family -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for dark mode and code blocks */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Light mode: default */
+        pre {
+            background-color: #f3f4f6; /* gray-100 */
+            border: 1px solid #d1d5db; /* gray-300 */
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            color: #111827; /* gray-900 */
+        }
+
+        /* Dark mode: styles */
+        .dark pre {
+            background-color: #1f2937; /* gray-800 */
+            border-color: #4b5563; /* gray-600 */
+            color: #e5e7eb; /* gray-200 */
+        }
+        
+        .dark .prose code {
+            color: #f6ad55; /* A nice orange for inline code */
+            background-color: #374151; /* gray-700 */
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .prose code {
+            color: #c026d3; /* A nice fuchsia for inline code */
+            background-color: #f3f4f6; /* gray-100 */
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 transition-colors duration-200">
+
+    <div class="max-w-4xl mx-auto p-6 md:p-10">
+        <!-- Main content area -->
+        <article class="prose prose-lg dark:prose-invert max-w-none">
+            
+            <h1>Building Logistic Regression from Scratch in Core Python</h1>
+            <p class="text-xl text-gray-600 dark:text-gray-400">An analytical guide to implementing the core of a "deep learning" neuron without any external libraries.</p>
+
+            <p>You're embarking on an excellent task. Building algorithms from scratch is the single best way to understand them. You've requested a "deep learning" approach, and Logistic Regression is the perfect starting point—it's mathematically identical to a single <strong>neuron</strong> with a <strong>sigmoid activation function</strong>.
+            </p>
+            <p>We'll build everything using only standard Python lists, loops, and the built-in <code>math</code> module. This forces us to confront the core mechanics: the hypothesis, the cost function, and the gradient descent algorithm.</p>
+            
+            <!-- Section 1: User's Starting Point -->
+            <h2>Analyzing Your Starting Point</h2>
+            <p>You provided this code:</p>
+<pre><code>def h(theta_0, theta_1, x):
+    return theta_0 + theta_1*x
+
+def h2(theta_0, theta_1, x):
+    return h(theta_0, theta_1, x)</code></pre>
+            <p>This is the <strong>hypothesis function for Linear Regression</strong> with one feature. It predicts a continuous value (like a price or temperature). For Logistic Regression, our goal is <strong>classification</strong> (e.g., 0 or 1, Spam or Not Spam). To do this, we need to make two key changes:</p>
+            <ol>
+                <li><strong>Generalize:</strong> Our model must handle <code>n</code> features, not just one. This means we'll have <code>theta_0</code> (the bias) and a list of weights <code>[theta_1, theta_2, ..., theta_n]</code>.</li>
+                <li><strong>Squash the Output:</strong> We need to take the linear output (which can be any number) and squash it into a probability between 0 and 1. We do this with the <strong>Sigmoid (or Logistic) Function</strong>.</li>
+            </ol>
+            <p>Let's build this step-by-step.</p>
+
+            <!-- Section 2: Step 1 - The Sigmoid Function -->
+            <h2>Step 1: The Sigmoid (Logistic) Function</h2>
+            <p>This is our "activation function." It takes any real number <code>z</code> and maps it to a value between 0 and 1. This is our predicted probability.</p>
+            <p>The formula is: <code>g(z) = 1 / (1 + e^(-z))</code></p>
+            <p>In core Python, we use <code>math.exp()</code>. We must also add checks for numerical stability. If <code>z</code> is very large, <code>e^(-z)</code> becomes 0, so <code>g(z) = 1</code>. If <code>z</code> is very small (very negative), <code>e^(-z)</code> becomes huge, so <code>g(z) = 0</code>. We must handle this to prevent <code>OverflowError</code>.</p>
+<pre><code>import math
+
+def _sigmoid(z):
+    """
+    The Sigmoid activation function.
+    Includes guards for numerical stability to prevent overflow.
+    """
+    if z > 700:  # e^(-700) is effectively 0
+        return 1.0
+    elif z < -700: # e^(700) is effectively infinity
+        return 0.0
+    else:
+        return 1.0 / (1.0 + math.exp(-z))
+</code></pre>
+
+            <!-- Section 3: Step 2 - The Hypothesis Function -->
+            <h2>Step 2: The Generalized Hypothesis Function</h2>
+            <p>Our new hypothesis <code>h(x)</code> will now be the sigmoid of the generalized linear function.</p>
+            <ul>
+                <li>The linear part (called <code>z</code>) is: <code>z = theta_0 + theta_1*x_1 + ... + theta_n*x_n</code></li>
+                <li>The hypothesis is: <code>h(x) = g(z) = _sigmoid(z)</code></li>
+            </ul>
+            <p>To compute <code>z</code> without <code>numpy</code>, we need a helper function for the "dot product" (or in this case, a weighted sum). Let's represent our features <code>x_sample</code> as a list <code>[x_1, ..., x_n]</code> and our weights <code>theta_weights</code> as <code>[theta_1, ..., theta_n]</code>. The bias <code>theta_0</code> is separate.</p>
+<pre><code>def _compute_z(theta_0, theta_weights, x_sample):
+    """
+    Computes the linear part: z = theta_0 + (theta_weights . x_sample)
+    """
+    # First, check for compatible lengths
+    if len(theta_weights) != len(x_sample):
+        raise ValueError("Mismatch in length of weights and features")
+    
+    z = theta_0
+    for i in range(len(theta_weights)):
+        z += theta_weights[i] * x_sample[i]
+    return z
+
+def _predict_probability(theta_0, theta_weights, x_sample):
+    """
+    Our full hypothesis: h(x) = sigmoid(z)
+    """
+    z = _compute_z(theta_0, theta_weights, x_sample)
+    return _sigmoid(z)
+</code></pre>
+            
+            <!-- Section 4: Step 3 - The Cost Function -->
+            <h2>Step 3: The Cost Function (Log Loss)</h2>
+            <p>We need a way to measure how "wrong" our model is. In deep learning and logistic regression, we use the <strong>Binary Cross-Entropy</strong> (or Log Loss) function. It penalizes confident wrong answers heavily.</p>
+            <p>The cost for a single sample is: <code>Cost(h, y) = -y * log(h) - (1 - y) * log(1 - h)</code></p>
+            <ul>
+                <li>If <code>y=1</code>, Cost = <code>-log(h)</code>. (As <code>h</code> -> 0, Cost -> &infin;)</li>
+                <li>If <code>y=0</code>, Cost = <code>-log(1 - h)</code>. (As <code>h</code> -> 1, Cost -> &infin;)</li>
+            </ul>
+            <p>The total cost <code>J</code> is the average cost over all <code>m</code> training samples. We must also add a tiny <code>epsilon</code> value to prevent <code>math.log(0)</code>, which is undefined.</p>
+<pre><code>def _compute_cost(y_true, y_pred_probs):
+    """
+    Computes the Binary Cross-Entropy (Log Loss).
+    """
+    m = len(y_true)
+    if m == 0:
+        return 0.0
+
+    total_cost = 0.0
+    epsilon = 1e-9  # To prevent log(0)
+    
+    for i in range(m):
+        h = y_pred_probs[i]
+        y = y_true[i]
+        
+        # Clip predictions to avoid log(0)
+        h = max(epsilon, min(1.0 - epsilon, h))
+        
+        cost_sample = -y * math.log(h) - (1 - y) * math.log(1 - h)
+        total_cost += cost_sample
+        
+    return total_cost / m
+</code></pre>
+
+            <!-- Section 5: Step 4 - Gradient Descent -->
+            <h2>Step 4: Gradient Descent (The "Learning")</h2>
+            <p>This is how the model learns. We want to minimize the cost <code>J</code>. We do this by taking the partial derivative of <code>J</code> with respect to each parameter (<code>theta_0</code> and each <code>theta_j</code>) and nudging the parameters in the opposite direction.</p>
+            <p>The (miraculously simple) derivatives are:</p>
+            <ul>
+                <li><code>dJ/d(theta_0) = (1/m) * &Sigma; (h(x_i) - y_i)</code></li>
+                <li><code>dJ/d(theta_j) = (1/m) * &Sigma; (h(x_i) - y_i) * x_ij</code> (for j=1..n)</li>
+            </ul>
+            <p>We'll compute these "gradients" and then update our parameters:</p>
+            <ul>
+                <li><code>theta_0 = theta_0 - &alpha; * (dJ/d(theta_0))</code></li>
+                <li><code>theta_j = theta_j - &alpha; * (dJ/d(theta_j))</code></li>
+            </ul>
+            <p>Where <code>&alpha;</code> (alpha) is the <strong>learning rate</strong>.</p>
+<pre><code>def _compute_gradients(X_data, y_true, y_pred_probs, n_features):
+    """
+    Computes the gradients of the cost function w.r.t. parameters.
+    """
+    m = len(y_true)
+    
+    # Initialize gradients to zero
+    grad_theta_0 = 0.0
+    grad_theta_weights = [0.0] * n_features
+    
+    for i in range(m):
+        x_sample = X_data[i]
+        h = y_pred_probs[i]
+        y = y_true[i]
+        
+        # The error term is common to all gradients
+        error = h - y 
+        
+        # Accumulate gradient for bias
+        grad_theta_0 += error
+        
+        # Accumulate gradients for weights
+        for j in range(n_features):
+            grad_theta_weights[j] += error * x_sample[j]
+            
+    # Average the gradients
+    grad_theta_0 /= m
+    for j in range(n_features):
+        grad_theta_weights[j] /= m
+        
+    return grad_theta_0, grad_theta_weights
+</code></pre>
+
+            <!-- Section 6: Step 5 - Putting It All Together -->
+            <h2>Step 5: The Full Python Class</h2>
+            <p>Now we assemble all these pieces into a single class. This is the standard way to package a model, even without libraries.</p>
+<pre><code>import math
+
+class CoreLogisticRegression:
+    
+    def __init__(self, learning_rate=0.01, n_iterations=1000):
+        """
+        Initialize the model.
+        
+        Args:
+            learning_rate (float): The step size for gradient descent.
+            n_iterations (int): Number of times to loop over the training data.
+        """
+        self.learning_rate = learning_rate
+        self.n_iterations = n_iterations
+        self.theta_0 = 0.0  # Bias term
+        self.theta_weights = [] # Weights for each feature
+        self.cost_history = [] # To track learning progress
+    
+    # --- 1. Sigmoid Function ---
+    def _sigmoid(self, z):
+        if z > 700:
+            return 1.0
+        elif z < -700:
+            return 0.0
+        else:
+            return 1.0 / (1.0 + math.exp(-z))
+
+    # --- 2. Hypothesis and Helpers ---
+    def _compute_z(self, x_sample):
+        """Computes z = theta_0 + (theta_weights . x_sample)"""
+        z = self.theta_0
+        for i in range(len(self.theta_weights)):
+            z += self.theta_weights[i] * x_sample[i]
+        return z
+
+    def _predict_probability(self, x_sample):
+        """Our full hypothesis: h(x) = sigmoid(z)"""
+        z = self._compute_z(x_sample)
+        return self._sigmoid(z)
+
+    # --- 3. Cost Function ---
+    def _compute_cost(self, y_true, y_pred_probs):
+        m = len(y_true)
+        if m == 0:
+            return 0.0
+        
+        total_cost = 0.0
+        epsilon = 1e-9
+        
+        for i in range(m):
+            h = y_pred_probs[i]
+            y = y_true[i]
+            h = max(epsilon, min(1.0 - epsilon, h)) # Clipping
+            cost_sample = -y * math.log(h) - (1 - y) * math.log(1 - h)
+            total_cost += cost_sample
+            
+        return total_cost / m
+
+    # --- 4. Gradient Descent ---
+    def _compute_gradients(self, X_data, y_true, y_pred_probs):
+        m = len(y_true)
+        n_features = len(self.theta_weights)
+        
+        grad_theta_0 = 0.0
+        grad_theta_weights = [0.0] * n_features
+        
+        for i in range(m):
+            x_sample = X_data[i]
+            h = y_pred_probs[i]
+            y = y_true[i]
+            error = h - y 
+            
+            grad_theta_0 += error
+            for j in range(n_features):
+                grad_theta_weights[j] += error * x_sample[j]
+                
+        grad_theta_0 /= m
+        for j in range(n_features):
+            grad_theta_weights[j] /= m
+            
+        return grad_theta_0, grad_theta_weights
+
+    # --- 5. Main Training Function ---
+    def fit(self, X_data, y_data, verbose=True):
+        """
+        Train the model using (Batch) Gradient Descent.
+        
+        Args:
+            X_data (list of lists): Training features. e.g., [[1, 2], [3, 4]]
+            y_data (list): Target labels. e.g., [0, 1]
+            verbose (bool): Whether to print cost updates.
+        """
+        # Get dimensions
+        if not X_data:
+            print("Error: X_data is empty.")
+            return
+        
+        m_samples = len(y_data)
+        # Assume all samples have the same number of features as the first one
+        n_features = len(X_data[0]) 
+        
+        # Initialize parameters
+        self.theta_0 = 0.0
+        self.theta_weights = [0.0] * n_features
+        self.cost_history = []
+        
+        # --- The Gradient Descent Loop ---
+        for i in range(self.n_iterations):
+            
+            # 1. Get predictions (probabilities) for ALL samples
+            y_pred_probs = []
+            for x_sample in X_data:
+                y_pred_probs.append(self._predict_probability(x_sample))
+            
+            # 2. Calculate the cost (for logging)
+            cost = self._compute_cost(y_data, y_pred_probs)
+            self.cost_history.append(cost)
+            
+            # 3. Calculate the gradients
+            grad_theta_0, grad_theta_weights = self._compute_gradients(
+                X_data, y_data, y_pred_probs
+            )
+            
+            # 4. Update the parameters
+            self.theta_0 -= self.learning_rate * grad_theta_0
+            for j in range(n_features):
+                self.theta_weights[j] -= self.learning_rate * grad_theta_weights[j]
+            
+            # Optional: Print progress
+            if verbose and i % (self.n_iterations // 10) == 0:
+                print(f"Iteration {i}: Cost = {cost:.4f}")
+
+    # --- 6. Prediction Functions ---
+    def predict_proba(self, X_data):
+        """
+        Predict probabilities for new data.
+        """
+        probabilities = []
+        for x_sample in X_data:
+            probabilities.append(self._predict_probability(x_sample))
+        return probabilities
+
+    def predict(self, X_data, threshold=0.5):
+        """
+        Predict class labels (0 or 1) based on a threshold.
+        """
+        probabilities = self.predict_proba(X_data)
+        labels = []
+        for prob in probabilities:
+            if prob >= threshold:
+                labels.append(1)
+            else:
+                labels.append(0)
+        return labels
+
+</code></pre>
+
+            <!-- Section 7: Step 6 - Example Usage -->
+            <h2>Step 6: Example Usage</h2>
+            <p>Let's test our model on a simple dataset. This data is "linearly separable," meaning a single line can divide the 0s and 1s.</p>
+<pre><code># --- Main execution ---
+if __name__ == "__main__":
+    
+    print("--- Testing CoreLogisticRegression ---")
+    
+    # 1. Create a simple dataset
+    # X = "Hours studied"
+    # y = "Passed" (0 or 1)
+    # We expect X to be a list of lists (features per sample)
+    X_train = [[1.0], [1.5], [2.0], [2.5], [4.5], [5.0], [5.5], [6.0]]
+    y_train = [0, 0, 0, 0, 1, 1, 1, 1]
+    
+    # 2. Initialize and train the model
+    # A higher learning rate and more iterations are needed 
+    # for this simple, un-scaled data.
+    model = CoreLogisticRegression(learning_rate=0.1, n_iterations=5000)
+    
+    print("Starting training...")
+    model.fit(X_train, y_train)
+    print("Training complete.")
+    
+    # 3. Print the final parameters
+    print(f"\nFinal Bias (theta_0): {model.theta_0:.4f}")
+    print(f"Final Weights (theta_1): {model.theta_weights[0]:.4f}")
+    
+    # 4. Make predictions
+    X_test = [[0.5], [3.0], [3.5], [7.0]]
+    
+    # Predict probabilities
+    probs = model.predict_proba(X_test)
+    # Predict labels
+    labels = model.predict(X_test)
+    
+    print("\n--- Test Results ---")
+    for i in range(len(X_test)):
+        print(f"Input: {X_test[i][0]} hours | "
+              f"Prob(Pass): {probs[i]:.4f} | "
+              f"Prediction: {labels[i]}")
+
+    # Expected output:
+    # The decision boundary should be around 3.5
+    # [0.5] -> Low prob, predict 0
+    # [3.0] -> ~0.5 prob, might be 0 or 1 (near boundary)
+    # [3.5] -> ~0.5 prob, might be 0 or 1 (near boundary)
+    # [7.0] -> High prob, predict 1
+</code></pre>
+
+            <!-- Section 8: Conclusion -->
+            <h2>Conclusion and Next Steps</h2>
+            <p>You have successfully built a complete logistic regression model—a single-neuron classifier—from absolute scratch. You've implemented the <strong>forward pass</strong> (<code>predict_proba</code>), the <strong>cost calculation</strong> (<code>_compute_cost</code>), and the <strong>backward pass</strong> (<code>_compute_gradients</code> and the <code>fit</code> loop).</p>
+            <p>The main limitation of this core Python approach is speed. Every operation is a <code>for</code> loop. Libraries like <code>numpy</code> perform these operations as highly-optimized, C-backend "vectorized" operations, which are thousands of times faster. However, those libraries hide the very logic you've just implemented. By doing this, you now know <em>exactly</em> what <code>numpy.dot()</code> or a deep learning framework's "backward pass" is actually doing under the hood.</p>
+
+        </article>
+    </div>
+
+</body>
+</html>
